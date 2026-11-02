@@ -1,13 +1,30 @@
-# Security Notes
+# Security Field Notes
 
-This repository contains personal technical notes, troubleshooting write-ups, and security-related documentation.
+Practical security notes by **Bill Andersson**, covering Microsoft identity, endpoint protection, and Azure.
 
-The purpose is to keep a public history of practical issues, investigations, and solutions related to Microsoft security, cloud security, endpoint protection, identity, and related technologies.
+**[Browse the notebook](https://dbanfd.github.io/demomx/)** · [GitHub profile](https://github.com/DBANFD)
 
-## Published site
+## In the notebook
 
-The GitHub Pages site is available from the repository’s Pages deployment.
+| Topic | Note |
+| --- | --- |
+| Identity | [Going passwordless with Microsoft Entra ID](Entra_Passwordless_TAP_Guide.html) |
+| Identity | [Setting up Microsoft Entra Private Access](Entra_Private_Access_Setup.html) |
+| Endpoint | [Repairing Defender onboarding on Server 2016](Windows_Server_2016_MDE_Onboarding_Remediation.html) |
+| Endpoint | [When Defender Antivirus stays disabled](Server2016_Defender_Troubleshooting.html) |
+| Azure | [Reaching on-premises servers with Azure Bastion](Azure_Bastion_OnPrem_RDP.html) |
 
-## Disclaimer
+## About these notes
 
-These notes are based on specific troubleshooting scenarios and should be adapted before being used in production environments.
+This is a personal collection of troubleshooting investigations, implementation guides, and architecture notes. Each article describes a specific scenario and practical next steps. Check current product documentation and adapt the guidance before applying it in your environment.
+
+## Site structure
+
+The site uses plain HTML, CSS, and a small JavaScript filter. It requires no build step or external dependencies. All articles remain accessible without JavaScript.
+
+- `index.html`: searchable article library and introduction.
+- `site.css`: shared layout and article styles, including mobile and print views.
+- `site.js`: topic filters and title/summary search.
+- Individual HTML files: standalone articles with stable URLs.
+
+To preview locally, run `python -m http.server 8000` from the repository folder and open `http://localhost:8000`.

@@ -3,34 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Windows Server 2016 Defender onboarding remediation</title>
-<style>
-:root{--bg:#f4f6f8;--text:#1f2937;--muted:#6b7280;--card:#fff;--line:#d9e0e8;--blue:#174a72;--blue2:#0f172a;--accent:#2563eb;--warn:#fff8df;--warnline:#e2c75b;--code:#f1f5f9}
-*{box-sizing:border-box}
-body{font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);margin:0;line-height:1.55}
-header{background:var(--blue2);color:white;padding:38px 24px}
-.header-inner{max-width:1100px;margin:auto}
-main{max-width:1100px;margin:auto;padding:24px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-h1{font-size:34px;margin:0 0 8px}
-h2{font-size:24px;margin:0 0 14px;border-bottom:2px solid var(--blue);padding-bottom:8px;color:var(--blue)}
-h3{font-size:19px;margin:24px 0 8px;color:#111827}
-p{margin:0 0 14px}.subtitle{color:#cbd5e1;max-width:900px}.meta{color:var(--muted);font-size:13px;margin-top:8px}.tag{display:inline-block;background:#e5e7eb;color:#111827;padding:4px 8px;border-radius:6px;font-size:12px;margin-right:6px}.note{background:var(--warn);border:1px solid var(--warnline);border-radius:8px;padding:14px;margin:16px 0}table{width:100%;border-collapse:collapse;margin:12px 0 18px;background:#fff}th{background:var(--blue);color:white;text-align:left}th,td{padding:10px 12px;border:1px solid var(--line);vertical-align:top}tr:nth-child(even) td{background:#f8fafc}code,pre{font-family:Consolas,Menlo,monospace}pre{background:var(--code);padding:14px;border-radius:8px;overflow:auto;border:1px solid #dbe3ec}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}ul,ol{margin-top:8px}.footer{color:var(--muted);font-size:12px;text-align:center;margin:30px 0}.toc a{display:block;margin:5px 0}.status-ok{color:#15803d;font-weight:600}.status-bad{color:#b91c1c;font-weight:600}
-</style>
+<title>Repairing Defender onboarding on Server 2016 | Security Field Notes</title>
+<link rel="stylesheet" href="site.css">
+<meta name="description" content="Trace an onboarding failure to Windows component store damage, then work through repair and verification.">
 </head>
-<body>
-<header>
+<body id="top"><a class="skip-link" href="#main">Skip to content</a>
+<nav class="site-nav" aria-label="Main navigation"><div class="nav-inner"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SF<span> / </span>N</span><span>Security Field Notes</span></a><div class="nav-links"><a href="index.html#library">Notes</a><a href="index.html#about">About</a><a href="https://github.com/DBANFD/demomx">GitHub <span aria-hidden="true">↗</span></a></div></div></nav>
+<header class="article-header">
 <div class="header-inner">
-<h1>Windows Server 2016 Defender onboarding remediation</h1>
+<p class="eyebrow">Endpoint / Troubleshooting</p><h1>Repairing Defender onboarding on Server 2016</h1>
 <p class="subtitle">Field note covering a Microsoft Defender for Endpoint onboarding failure caused by Windows component store corruption on Windows Server 2016.</p>
 <div class="meta"><span class="tag">Defender for Endpoint</span><span class="tag">Windows Server 2016</span><span class="tag">DISM</span><span class="tag">Component Store</span></div>
 </div>
 </header>
-<main>
+<main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
 <section class="card">
 <h2>Overview</h2>
 <p>This case covers a Windows Server 2016 onboarding failure where the Microsoft Defender deployment tool repeatedly failed when enabling the built-in Windows Defender feature. The relevant blocker was not passive mode, policy, connectivity, or the onboarding package. The blocker was Windows servicing/component store damage.</p>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Item</th><th>Details</th></tr>
 <tr><td>Device</td><td>Anonymized Windows Server 2016 host</td></tr>
 <tr><td>Operating system</td><td>Windows Server 2016 x64, build 14393</td></tr>
@@ -38,7 +28,7 @@ p{margin:0 0 14px}.subtitle{color:#cbd5e1;max-width:900px}.meta{color:var(--mute
 <tr><td>Tool exit code</td><td>710, EnableFeatureFailed</td></tr>
 <tr><td>Observed pattern</td><td>Multiple failed runs with the same failure point and the same error signature.</td></tr>
 <tr><td>Root cause</td><td>The Windows component store cannot finalize the Windows Defender feature because a referenced assembly is missing. DISM cannot self-repair without a valid servicing source.</td></tr>
-</table>
+</table></div>
 <div class="note"><strong>Key point:</strong> Re-running the deployment tool, offboarding and re-onboarding, or changing passive mode settings will continue to fail until the Windows component store is repaired.</div>
 </section>
 <section class="card toc">
@@ -60,21 +50,21 @@ p{margin:0 0 14px}.subtitle{color:#cbd5e1;max-width:900px}.meta{color:var(--mute
 Code: EnableFeatureFailed. Failed to enable the 'Windows-Defender' feature, error: 0x00003701
 Microsoft Defender deployment tool completed, exit code: 710 [EnableFeatureFailed]</pre>
 <h3>Relevant DISM and CBS error codes</h3>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Error code</th><th>Where seen</th><th>Meaning</th></tr>
 <tr><td>0x00003701 / 14081</td><td>Defender deployment tooling log</td><td>DISM exit code returned while enabling the Windows Defender feature. Microsoft documents this as 0x3701, meaning the referenced assembly could not be found.</td></tr>
 <tr><td>0x80073701</td><td>dism.log / CBS</td><td>ERROR_SXS_ASSEMBLY_MISSING. A component required by the install is missing from the component store.</td></tr>
 <tr><td>0x800f081f</td><td>dism.log during RestoreHealth</td><td>The source files could not be found. DISM /RestoreHealth could not locate a repair source.</td></tr>
-</table>
+</table></div>
 <h3>Component store state</h3>
 <p>The parent Defender package was present, but the Defender feature and related sub-packages were stuck in a staged state instead of fully installed.</p>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Package or feature</th><th>Current state</th><th>Target state</th></tr>
 <tr><td>Windows-Defender-Server-Core-Package parent</td><td class="status-ok">Installed</td><td>Installed</td></tr>
 <tr><td>Windows-Defender-Features</td><td class="status-ok">Installed</td><td>Installed</td></tr>
 <tr><td>Windows-Defender AV feature</td><td class="status-bad">Staged</td><td>Installed</td></tr>
 <tr><td>Server-Service, Core, NIS, and Management sub-packages</td><td class="status-bad">Staged</td><td>Installed</td></tr>
-</table>
+</table></div>
 <p>This sequence points to a Windows servicing issue. The Defender onboarding process cannot complete because the operating system cannot enable the required Defender feature.</p>
 </section>
 <section class="card" id="remediation">
@@ -113,14 +103,14 @@ Dism /Online /Enable-Feature /FeatureName:Windows-Defender /All</pre>
 </section>
 <section class="card" id="verification">
 <h2>3. Verification checklist</h2>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Check</th><th>Expected result</th></tr>
 <tr><td><code>Dism /Online /Get-FeatureInfo /FeatureName:Windows-Defender</code></td><td><code>State : Enabled</code></td></tr>
 <tr><td><code>sc.exe query windefend</code></td><td><code>STATE : 4 RUNNING</code></td></tr>
 <tr><td><code>sc.exe query sense</code></td><td><code>STATE : 4 RUNNING</code></td></tr>
 <tr><td><code>Get-MpComputerStatus | select AMRunningMode, AMServiceEnabled</code></td><td><code>AMServiceEnabled : True</code> and <code>AMRunningMode</code> populated</td></tr>
 <tr><td>Defender deployment tool</td><td>Exit code 0. No longer exit code 710.</td></tr>
-</table>
+</table></div>
 </section>
 <section class="card" id="if-fails">
 <h2>4. If DISM repair still fails</h2>
@@ -190,16 +180,16 @@ Dism /Unmount-Image /MountDir:C:\mount /Discard</pre>
 </section>
 <section class="card" id="references">
 <h2>8. References</h2>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>#</th><th>What it supports</th><th>Link</th></tr>
 <tr><td>1</td><td>Defender deployment tool exit code 710 and Server 2016 error 14081 / 0x3701 guidance.</td><td><a href="https://learn.microsoft.com/en-us/defender-endpoint/defender-deployment-tool-windows">Microsoft Learn: Defender deployment tool</a></td></tr>
 <tr><td>2</td><td>Enable and update Microsoft Defender Antivirus on Windows Server, including prerequisites and DISM feature commands.</td><td><a href="https://learn.microsoft.com/en-us/defender-endpoint/enable-update-mdav-to-latest-ws">Microsoft Learn: Enable and update MDAV on Windows Server</a></td></tr>
 <tr><td>3</td><td>Onboard Windows Server to Microsoft Defender for Endpoint.</td><td><a href="https://learn.microsoft.com/en-us/defender-endpoint/onboard-server">Microsoft Learn: Onboard Windows Server</a></td></tr>
 <tr><td>4</td><td>DISM /RestoreHealth source repair guidance.</td><td><a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image">Microsoft Learn: Repair a Windows image</a></td></tr>
 <tr><td>5</td><td>ERROR_SXS_ASSEMBLY_MISSING remediation guidance.</td><td><a href="https://learn.microsoft.com/en-us/answers/questions/1319502/(hresult-0x80073701-error-sxs-assembly-missing)">Microsoft Q&amp;A: 0x80073701</a></td></tr>
-</table>
+</table></div>
 </section>
-<div class="footer">Security Field Notes</div>
-</main>
+
+</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p></div><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>

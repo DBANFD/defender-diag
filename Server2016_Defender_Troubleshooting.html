@@ -1,35 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta charset="utf-8">
-<title>Customer Server 2016 Defender Troubleshooting - Chat Summary</title>
-<style>
-body{font-family:Segoe UI,Arial,sans-serif;line-height:1.5;color:#1f2933;margin:0;background:#f5f7fa}
-header{background:#0f172a;color:#fff;padding:28px 40px}
-header h1{margin:0 0 8px 0;font-size:28px}
-header p{margin:0;color:#cbd5e1}
-main{max-width:1100px;margin:24px auto;padding:0 24px 48px}
-section{background:#fff;border:1px solid #d9e2ec;border-radius:10px;padding:22px 26px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-h2{margin-top:0;color:#0f172a;border-bottom:1px solid #e5e7eb;padding-bottom:8px}
-h3{color:#1e3a8a;margin-top:22px}
-table{border-collapse:collapse;width:100%;margin:12px 0}
-th,td{border:1px solid #d9e2ec;padding:9px 10px;text-align:left;vertical-align:top}
-th{background:#eef2ff;color:#0f172a}
-pre,code{font-family:Consolas,'Courier New',monospace;font-size:13px}
-pre{background:#0b1020;color:#e5e7eb;padding:14px;border-radius:8px;overflow-x:auto;border:1px solid #1e293b}
-.finding{border-left:5px solid #dc2626;background:#fff7f7;padding:12px 14px;margin:12px 0}
-.ok{border-left:5px solid #16a34a;background:#f0fdf4;padding:12px 14px;margin:12px 0}
-.warn{border-left:5px solid #f59e0b;background:#fffbeb;padding:12px 14px;margin:12px 0}
-.toc a{display:block;padding:4px 0;color:#1d4ed8;text-decoration:none}
-.small{color:#64748b;font-size:13px}
-</style>
+<title>When Defender Antivirus stays disabled | Security Field Notes</title>
+<link rel="stylesheet" href="site.css">
+<meta name="description" content="A Server 2016 investigation covering engine state, passive mode, policy evidence, and diagnostic commands.">
 </head>
-<body>
-<header>
-<h1>Customer Server 2016 Defender Troubleshooting</h1>
-<p>Structured HTML summary of the chat, evidence, commands, analysis, and next steps.</p>
-</header>
-<main>
+<body id="top"><a class="skip-link" href="#main">Skip to content</a>
+<nav class="site-nav" aria-label="Main navigation"><div class="nav-inner"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SF<span> / </span>N</span><span>Security Field Notes</span></a><div class="nav-links"><a href="index.html#library">Notes</a><a href="index.html#about">About</a><a href="https://github.com/DBANFD/demomx">GitHub <span aria-hidden="true">↗</span></a></div></div></nav>
+<header class="article-header"><div class="header-inner">
+<p class="eyebrow">Endpoint / Investigation</p><h1>When Defender Antivirus stays disabled</h1>
+<p>A Windows Server 2016 investigation covering evidence, engine state, diagnostic commands, and next steps.</p>
+</div></header>
+<main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
 
 
 
@@ -58,7 +42,7 @@ pre{background:#0b1020;color:#e5e7eb;padding:14px;border-radius:8px;overflow-x:a
 
 <section id="environment">
 <h2>2. Environment and affected devices</h2>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Item</th><th>Details</th></tr>
 <tr><td>Customer</td><td>Customer</td></tr>
 <tr><td>Primary affected device</td><td>server2016-app01 / SERVER2016-APP01</td></tr>
@@ -66,7 +50,7 @@ pre{background:#0b1020;color:#e5e7eb;padding:14px;border-radius:8px;overflow-x:a
 <tr><td>Policy involved</td><td>Standard - AV Enforcement Policy (Windows)</td></tr>
 <tr><td>Device group</td><td>User confirmed it is in the same Defender device group as other servers</td></tr>
 <tr><td>Intune view</td><td>Device appears in Windows devices and is shown as <strong>Managed by: MDE</strong></td></tr>
-</table>
+</table></div>
 <h3>Other related servers from same site</h3>
 <ul>
 <li>server2016-app02.corp.example.com</li>
@@ -95,7 +79,7 @@ pre{background:#0b1020;color:#e5e7eb;padding:14px;border-radius:8px;overflow-x:a
 
 <h3>4.1 Registry evidence</h3>
 <p>Under <code>HKLM\SOFTWARE\Microsoft\Windows Defender</code>, the following values were observed:</p>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Registry value</th><th>Observed value</th><th>Interpretation</th></tr>
 <tr><td>DisableAntiSpyware</td><td>0</td><td>Defender is not disabled through this legacy key.</td></tr>
 <tr><td>DisableAntiVirus</td><td>0</td><td>AV is not explicitly disabled through this key.</td></tr>
@@ -103,7 +87,7 @@ pre{background:#0b1020;color:#e5e7eb;padding:14px;border-radius:8px;overflow-x:a
 <tr><td>PassiveMode</td><td>2</td><td><strong>Key evidence:</strong> Defender AV is in passive/EDR-only/disabled mode.</td></tr>
 <tr><td>ProductStatus</td><td>0</td><td>Supports abnormal or non-active AV state.</td></tr>
 <tr><td>ProductType</td><td>2</td><td>Server/Defender product type state.</td></tr>
-</table>
+</table></div>
 <div class="finding"><strong>Important:</strong> PassiveMode = 2 was the strongest local indicator that Defender AV was intentionally not active.</div>
 
 <h3>4.2 Defender portal evidence</h3>
@@ -116,14 +100,14 @@ pre{background:#0b1020;color:#e5e7eb;padding:14px;border-radius:8px;overflow-x:a
 
 <h3>4.3 Policy evidence</h3>
 <p>The policy <strong>Standard - AV Enforcement Policy (Windows)</strong> reported error on the device. Per-setting status showed several runtime AV-dependent failures:</p>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Setting</th><th>Status</th><th>Error code</th><th>Interpretation</th></tr>
 <tr><td>Cloud Block Level</td><td>Error</td><td>0</td><td>Requires active AV/cloud protection stack.</td></tr>
 <tr><td>Cloud Extended Timeout</td><td>Error</td><td>0</td><td>Depends on cloud protection being available.</td></tr>
 <tr><td>Enable Low CPU Priority</td><td>Error</td><td>0</td><td>Requires active Defender AV engine.</td></tr>
 <tr><td>Enable Network Protection</td><td>Error</td><td>-2147467259 / 0x80004005</td><td>Network Protection cannot enable when Defender AV is disabled/passive.</td></tr>
 <tr><td>Exclusions policy</td><td>Succeeded</td><td>N/A</td><td>Preferences can be written even if AV engine is inactive.</td></tr>
-</table>
+</table></div>
 <div class="ok"><strong>Interpretation:</strong> The policy is not globally broken. The device accepts some settings, but AV-runtime settings fail because Defender AV is not running.</div>
 
 <h3>4.4 GPO evidence</h3>
@@ -138,7 +122,7 @@ MdmUrl        : https://enrollment.manage.microsoft.com/enrollmentserver/discove
 
 <section id="ruled-out">
 <h2>5. What was ruled out</h2>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Potential cause</th><th>Status</th><th>Reason</th></tr>
 <tr><td>Broken AV policy</td><td>Unlikely</td><td>The same policy applies many settings successfully. Failures are specific to AV-runtime settings.</td></tr>
 <tr><td>Different Defender device group</td><td>Ruled out by user</td><td>User confirmed the server is in the same device group.</td></tr>
@@ -146,7 +130,7 @@ MdmUrl        : https://enrollment.manage.microsoft.com/enrollmentserver/discove
 <tr><td>SFC / system file corruption</td><td>Unlikely</td><td>SFC did not find integrity violations.</td></tr>
 <tr><td>Tamper protection alone</td><td>Not root cause</td><td>Tamper blocked edits earlier, but troubleshooting mode later showed <code>DisableTamperProtection : True</code>. AV mode remained the key blocker.</td></tr>
 <tr><td>Quest KACE itself as AV</td><td>Unproven</td><td>KACE is not normally AV, but it may have deployed or historically managed another security product. WSC registration must be checked.</td></tr>
-</table>
+</table></div>
 </section>
 
 <section id="analysis">
@@ -242,7 +226,7 @@ Start-Service WinDefend</pre>
 </ol>
 
 <h3>10.3 Expected final state</h3>
-<table>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
 <tr><th>Field</th><th>Expected value</th></tr>
 <tr><td>AMRunningMode</td><td>Normal</td></tr>
 <tr><td>AMServiceEnabled</td><td>True</td></tr>
@@ -250,7 +234,7 @@ Start-Service WinDefend</pre>
 <tr><td>RealTimeProtectionEnabled</td><td>True</td></tr>
 <tr><td>Defender portal AV mode</td><td>Active</td></tr>
 <tr><td>AV Enforcement Policy</td><td>Succeeded</td></tr>
-</table>
+</table></div>
 </section>
 
 <section id="customer-message">
@@ -260,6 +244,6 @@ Start-Service WinDefend</pre>
 </section>
 
 <section><p class="small">Generated from troubleshooting conversation. Created: 2026-06-17 07:29 UTC</p></section>
-</main>
+</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p></div><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>
