@@ -9,37 +9,54 @@
 </head>
 <body id="top"><a class="skip-link" href="#main">Skip to content</a>
 <nav class="site-nav" aria-label="Main navigation"><div class="nav-inner"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SF<span> / </span>N</span><span>Security Field Notes</span></a><div class="nav-links"><a href="index.html#library">Notes</a><a href="index.html#about">About</a><a href="https://github.com/DBANFD/demomx">GitHub <span aria-hidden="true">↗</span></a></div></div></nav>
-<header class="article-header"><div class="header-inner"><p class="eyebrow">Identity / Implementation guide</p><h1>Setting up Microsoft Entra Private Access</h1><p class="subtitle">A practical field note for publishing private applications and RDP access through Microsoft Entra Private Access and Global Secure Access.</p></div></header>
+
+<header class="article-header"><div class="header-inner"><p class="eyebrow">Identity / Implementation guide</p>
+<h1>Setting up Microsoft Entra Private Access</h1><p class="subtitle">A practical field note for publishing private applications and RDP access through Microsoft Entra Private Access and Global Secure Access.</p>
+</div></header>
 <main id="main" class="article-main">
 <div class="article-nav"><a href="index.html">← Back to Security Field Notes</a></div>
-<div class="card">
-<div class="meta"><span class="tag tag-blue">Entra ID</span> Published note · anonymized field reference</div>
+<p class="meta"><strong>Technical review:</strong> 2 November 2026 · Checked against Microsoft documentation. Commands and deployment flows have not been validated in a live customer environment as part of this review.</p>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2>
+<a href="#design">Start with one application</a><a href="#connectors">Place connectors where they can reach the target</a><a href="#application">Configure per-app access and assignment</a><a href="#policy">Apply Conditional Access to the application</a><a href="#validate">Prove the access boundaries</a></nav>
 
-<h2>Purpose</h2>
-<p>This note describes a practical setup pattern for Microsoft Entra Private Access to publish private applications, including RDP to internal servers, without exposing inbound access to the internet and without relying on traditional VPN access.</p>
-<div class="note"><strong>Design idea:</strong> users run the Global Secure Access client. Traffic for selected private apps is tunneled to Microsoft Entra Private Access, then sent through private network connectors to the internal resource.</div>
-<h2>What Entra Private Access is</h2>
-<p>Microsoft Entra Private Access is part of Global Secure Access. It gives users identity-aware access to private resources using Conditional Access and private network connectors. You can configure access broadly with Quick Access, or more granularly with per-app access.</p>
-<h2>Recommended model</h2><p>Use <strong>Quick Access</strong> for initial testing or VPN-like access to a small private range. Use <strong>per-app access</strong> for production segmentation, especially for administrative protocols such as RDP.</p>
-<h2>Core components</h2>
-<div class="kv"><div>Global Secure Access client</div><div>Installed on the user device. It identifies and forwards traffic that should go through Entra Private Access.</div><div>Private network connector</div><div>Windows Server connector installed inside the private network. It uses outbound connectivity to the Microsoft service.</div><div>Connector group</div><div>A logical group of connectors used to reach a site, datacenter, or application zone.</div><div>Quick Access</div><div>A simple way to define private FQDNs, IPs, or ranges that should be routed through Private Access.</div><div>Per-app access</div><div>A more controlled model where you define application segments, ports, users, groups, and Conditional Access policies.</div></div>
-<h2>Setup steps</h2>
-<ol><li><strong>Confirm licensing and roles.</strong> Confirm that the tenant has the required Global Secure Access / Entra Private Access capability and that administrators have rights to configure Global Secure Access, enterprise apps, and Conditional Access.</li><li><strong>Enable Global Secure Access.</strong> In the Microsoft Entra admin center, open Global Secure Access and complete the initial activation steps.</li><li><strong>Install private network connectors.</strong> Install at least two connectors on Windows Server in the network that can reach the private resources. Avoid installing them directly on domain controllers unless there is a clear reason.</li><li><strong>Create connector groups.</strong> Group connectors by site, application zone, or network boundary. This makes it easier to control routing and troubleshoot access.</li><li><strong>Enable the Private Access traffic forwarding profile.</strong> Assign the profile to a pilot user group first.</li><li><strong>Deploy the Global Secure Access client.</strong> Start with a pilot group. For production, deploy with Intune or another software deployment tool.</li><li><strong>Configure Quick Access or per-app access.</strong> For a first test, define a private FQDN or IP. For production RDP, create a Global Secure Access app with the target segment and TCP 3389.</li><li><strong>Assign users and groups.</strong> Keep assignments narrow. Use dedicated admin groups for sensitive protocols such as RDP.</li><li><strong>Add Conditional Access.</strong> Require MFA, compliant device, trusted location rules if relevant, and session controls that match the risk of the app.</li><li><strong>Test and monitor.</strong> Test DNS resolution, TCP reachability, user assignment, Conditional Access result, connector health, and client traffic forwarding.</li></ol>
-<h2>Example: publish RDP to an internal server</h2>
-<p>For administrative RDP, prefer per-app access instead of broad subnet access.</p>
-<ol><li>Create or select a connector group that can reach the target server.</li><li>Create a new Global Secure Access app.</li><li>Add an application segment for the server FQDN or IP address.</li><li>Add TCP port <span class="inline-code">3389</span>.</li><li>Assign only the admin group that should use this RDP path.</li><li>Create a Conditional Access policy requiring MFA and a compliant or hybrid joined device.</li><li>On the client, confirm the Global Secure Access client is connected.</li><li>Start RDP using the server name or IP covered by the application segment.</li></ol>
-<h2>Validation checklist</h2>
-<ul><li>The connector status is active.</li><li>The connector server can resolve and reach the target application or server.</li><li>The user is assigned to the Private Access profile and the app.</li><li>The Global Secure Access client is installed, signed in, and forwarding Private Access traffic.</li><li>Conditional Access sign-in logs show the expected policy result.</li><li>RDP works only for the intended users and only through the intended path.</li></ul>
-<h2>Common problems</h2>
-<ul><li><strong>DNS is not aligned.</strong> The client and connector path must resolve the same private resource correctly.</li><li><strong>Connector placement is wrong.</strong> A connector must be placed where it can reach the target resource over the required port.</li><li><strong>Too broad Quick Access ranges.</strong> This can become a VPN replacement with weak segmentation. Use per-app access for sensitive workloads.</li><li><strong>Client is missing or not forwarding traffic.</strong> Private Access currently depends on the Global Secure Access client for end-user access.</li><li><strong>RDP multi-session expectations.</strong> Check current known limitations before using this pattern for RDS, AVD, or shared jump-server designs.</li></ul>
-<div class="warning"><strong>Design warning:</strong> Entra Private Access is not just a network feature. Treat it as an identity-controlled access path. The value comes from user assignment, Conditional Access, device posture, logging, and segmentation.</div>
-<h2>Suggested pilot</h2>
-<ol><li>Start with one connector group and two connectors.</li><li>Publish one low-risk internal web app using Quick Access.</li><li>Then publish one RDP target using per-app access and TCP 3389.</li><li>Assign five to ten admin users.</li><li>Validate logs, user experience, support process, and rollback.</li><li>Expand by application group, not by broad network range.</li></ol>
-<h2>Sources</h2>
-<ul><li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/concept-private-access">Microsoft Learn: Microsoft Entra Private Access</a></li><li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/quickstart-quick-access">Microsoft Learn: Configure Quick Access to private resources</a></li><li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-configure-quick-access">Microsoft Learn: Configure Quick Access</a></li><li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-configure-per-app-access">Microsoft Learn: Configure per-app access</a></li><li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/concept-connectors">Microsoft Learn: Microsoft Entra private network connectors</a></li><li><a href="https://learn.microsoft.com/en-us/entra/global-secure-access/reference-current-known-limitations">Microsoft Learn: Global Secure Access known limitations</a></li></ul>
+<section id="design"><h2>Start with one application</h2>
+<p>Microsoft Entra Private Access provides identity-controlled access to private resources through Global Secure Access. For a first pilot, publish one application to one small user group, then validate access decisions, connectivity, and recovery before expanding.</p>
+<div class="finding"><strong>Example:</strong> Publish <code>rdp01.corp.example.com</code> on TCP 3389 through a dedicated application segment. Private Access authorizes the connection path; the Windows target still authenticates the RDP user.</div><p>Plan the required Entra ID P1/P2 prerequisite and an Entra Private Access or Entra Suite license for the relevant users. See <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/concept-traffic-forwarding">traffic forwarding and licensing requirements</a>.</p>
+</section>
 
-</div>
+<section id="connectors"><h2>Place connectors where they can reach the target</h2>
+<p>Use supported Windows Server hosts with the required .NET and TLS configuration, outbound access to Microsoft's connector services, and internal connectivity to the application. Connectors must resolve the backend name and reach its port. Follow the current endpoint allowlist rather than assuming outbound HTTPS alone covers every dependency.</p>
+<p>Use at least two healthy connectors in the production connector group for resilience. Avoid making both dependent on the same single failure point. Keep them updated and monitor their status. Microsoft's <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-configure-connectors">connector installation guidance</a> specifies the supported prerequisites. Do not apply Application Proxy-only changes, such as disabling HTTP/2, to a Private Access-only deployment without a relevant requirement.</p>
+</section>
 
-</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p></div><a href="#top">Back to top ↑</a></footer>
+<section id="application"><h2>Configure per-app access and assignment</h2>
+<ol><li>Create the Global Secure Access application with the required administrator roles.</li>
+<li>Select the connector group that can reach the backend.</li>
+<li>Add the narrow application segment: target FQDN or address, protocol, and required port.</li>
+<li>Assign the pilot users or group to the enterprise application.</li>
+<li>Enable and assign the Private Access traffic forwarding profile, and deploy the supported Global Secure Access client.</li>
+</ol>
+<p>Application assignment and traffic forwarding are separate requirements. Prefer a narrow per-app segment for this pilot; avoid broad overlapping ranges that make routing and policy ownership difficult to reason about. Follow <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-configure-per-app-access">per-app access setup</a> and <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-manage-private-access-profile">Private Access profile management</a>. A preview profile feature is not a prerequisite for this basic design.</p>
+</section>
+
+<section id="policy"><h2>Apply Conditional Access to the application</h2>
+<p>Target the Global Secure Access application, or the Quick Access application if that is the design. Conditional Access for Private Access is applied at application level, not to the Private Access traffic forwarding profile.</p>
+<p>Begin with report-only policy and review sign-in results. If requiring MFA and device compliance, configure the intended combination explicitly. Selecting multiple grant controls with “require one” does not enforce all of them. Test the exact policy with both eligible and ineligible devices before enabling it broadly.</p>
+<p>The service depends on supported client behavior. Current limitations include local-subnet IP traffic, unsupported secure DNS configurations on Windows, and interactions with DNS policies. Review the <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/reference-current-known-limitations">current Global Secure Access limitations</a> before selecting an RDP, shared-device, or remote-network deployment pattern. Do not weaken DNS settings across the estate to troubleshoot one pilot.</p>
+</section>
+
+<section id="validate"><h2>Prove the access boundaries</h2>
+<ul><li>From an assigned user's supported client, confirm the traffic profile is active, the name resolves as expected, and the application works.</li>
+<li>Check the applicable sign-in, Conditional Access, and traffic records for that connection.</li>
+<li>Confirm an unassigned user is denied, and test the device requirement with a nonqualifying pilot device.</li>
+<li>Test connector failure and recovery without interrupting both connectors simultaneously.</li>
+<li>Check that unrelated applications remain reachable through their intended paths.</li>
+</ul>
+<p>Publishing an application does not remove existing VPN or local-network routes. If access must occur only through Private Access, separately design and validate the network controls that close alternative paths.</p>
+<p>Before rollout, record how to restore previous client/profile assignments and application policy. Keep an approved administrative recovery path available during the pilot. Expand by application after the evidence supports the intended access boundary.</p>
+</section>
+
+</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p>
+</div><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>

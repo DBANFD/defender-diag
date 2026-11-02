@@ -9,241 +9,91 @@
 </head>
 <body id="top"><a class="skip-link" href="#main">Skip to content</a>
 <nav class="site-nav" aria-label="Main navigation"><div class="nav-inner"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SF<span> / </span>N</span><span>Security Field Notes</span></a><div class="nav-links"><a href="index.html#library">Notes</a><a href="index.html#about">About</a><a href="https://github.com/DBANFD/demomx">GitHub <span aria-hidden="true">↗</span></a></div></div></nav>
+
 <header class="article-header"><div class="header-inner">
-<p class="eyebrow">Endpoint / Investigation</p><h1>When Defender Antivirus stays disabled</h1>
+<p class="eyebrow">Endpoint / Investigation</p>
+<h1>When Defender Antivirus stays disabled</h1>
 <p>A Windows Server 2016 investigation covering evidence, engine state, diagnostic commands, and next steps.</p>
+
 </div></header>
 <main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
+<p class="meta"><strong>Technical review:</strong> 2 November 2026 · Checked against Microsoft documentation. Commands and deployment flows have not been validated in a live customer environment as part of this review.</p>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2>
+<a href="#executive-summary">What the evidence establishes</a><a href="#evidence">Separate observations from conclusions</a><a href="#commands">Collect current state first</a><a href="#analysis">Choose the branch that matches the intended design</a><a href="#next-steps">Use supported remediation</a><a href="#tamper">Troubleshooting mode and tamper protection</a><a href="#validation">Close the case with evidence</a></nav>
 
+<section id="executive-summary"><h2>What the evidence establishes</h2>
+<div class="finding"><strong>Investigation status:</strong> The original case notes describe an onboarded Windows Server 2016 device whose antivirus protection was not active. They do not establish a confirmed root cause or a successful repair.</div>
+<p>Onboarding to Microsoft Defender for Endpoint (MDE) and running Microsoft Defender Antivirus are separate conditions. A reporting endpoint sensor does not prove that real-time antivirus protection is running. Start by identifying the intended antivirus product and collecting current local state.</p>
 
-
-
-<section class="toc">
-<h2>Table of contents</h2>
-<a href="#executive-summary">1. Executive summary</a>
-<a href="#environment">2. Environment and affected devices</a>
-<a href="#symptoms">3. Observed symptoms</a>
-<a href="#evidence">4. Evidence collected</a>
-<a href="#ruled-out">5. What was ruled out</a>
-<a href="#analysis">6. Technical analysis</a>
-<a href="#tamper">7. Troubleshooting mode and tamper protection</a>
-<a href="#commands">8. Useful commands</a>
-<a href="#root-cause">9. Likely root cause</a>
-<a href="#next-steps">10. Recommended next steps</a>
-<a href="#customer-message">11. Suggested customer-facing wording</a>
+<p>This revision corrects the earlier interpretation of an internal <code>PassiveMode = 2</code> value. It is not used here as proof of passive, disabled, or EDR-only operation. Those states are not interchangeable.</p>
 </section>
 
-<section id="executive-summary">
-<h2>1. Executive summary</h2>
-<div class="finding"><strong>Main conclusion:</strong> The affected Windows Server 2016 device, <strong>server2016-app01</strong>, is onboarded to Microsoft Defender for Endpoint, but Microsoft Defender Antivirus is not active. The strongest evidence is <strong>PassiveMode = 2</strong> and the Defender portal reporting <strong>Defender Antivirus mode: Disabled</strong>.</div>
-<p>The issue is not caused by the assigned Defender AV policy itself. The policy reaches the server and many settings apply successfully. Settings that require the Defender AV engine fail because the AV engine is disabled or passive.</p>
-<p>The most likely explanation is Windows Server 2016 legacy Defender behavior: Defender AV was placed into passive/disabled mode at some earlier point, possibly during onboarding or after a previous endpoint security product was present. Server 2016 does not reliably auto-reactivate Defender AV after passive mode conditions are removed.</p>
+<section id="evidence"><h2>Separate observations from conclusions</h2>
+<div class="table-scroll" role="region" aria-label="Evidence interpretation" tabindex="0"><table><thead><tr><th>Recorded observation</th><th>What it supports</th><th>What remains unknown</th></tr>
+</thead>
+<tbody>
+<tr><td>Portal reported antivirus disabled</td><td>A protection-state problem requiring investigation</td><td>Current local state and the age of the portal observation</td></tr>
+
+<tr><td>Some antivirus policy settings succeeded; others failed</td><td>Partial policy processing</td><td>Whether policy conflict, engine state, or another dependency caused each failure</td></tr>
+
+<tr><td>Service appeared stopped or stopping</td><td>A service-state symptom</td><td>Why it stopped, whether this was transient, and the associated event errors</td></tr>
+
+<tr><td>Internal registry values and an update failure were recorded</td><td>Useful investigation leads</td><td>A supported mode diagnosis or a causal link between the symptoms</td></tr>
+
+</tbody>
+</table>
+</div><p>The raw logs have not been independently rechecked for this review. Do not mark policy, tamper protection, third-party software, or component health as ruled out from these observations alone.</p>
 </section>
 
-<section id="environment">
-<h2>2. Environment and affected devices</h2>
-<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
-<tr><th>Item</th><th>Details</th></tr>
-<tr><td>Customer</td><td>Customer</td></tr>
-<tr><td>Primary affected device</td><td>server2016-app01 / SERVER2016-APP01</td></tr>
-<tr><td>OS</td><td>Windows Server 2016, build 10.0.14393 / release 1607</td></tr>
-<tr><td>Policy involved</td><td>Standard - AV Enforcement Policy (Windows)</td></tr>
-<tr><td>Device group</td><td>User confirmed it is in the same Defender device group as other servers</td></tr>
-<tr><td>Intune view</td><td>Device appears in Windows devices and is shown as <strong>Managed by: MDE</strong></td></tr>
-</table></div>
-<h3>Other related servers from same site</h3>
-<ul>
-<li>server2016-app02.corp.example.com</li>
-<li>server2016-app03.corp.example.com</li>
-<li>server2016-app01.corp.customer.com</li>
-<li>server2016-app05.corp.example.com</li>
-<li>server2016-db01.corp.example.com</li>
-</ul>
+<section id="commands"><h2>Collect current state first</h2>
+<p>Run these read-only checks in an elevated Windows PowerShell session on the affected server. Record the time and retain errors as evidence. A missing cmdlet, property, or event log is itself a finding; it is not a reason to assume a healthy state.</p>
+<pre><code>Get-Date -Format o
+Get-MpComputerStatus | Select-Object AMRunningMode, AMServiceEnabled,
+    AntivirusEnabled, RealTimeProtectionEnabled, IsTamperProtected,
+    AMProductVersion, AMEngineVersion, AntivirusSignatureVersion,
+    AntivirusSignatureLastUpdated
+Get-Service -Name WinDefend, Sense -ErrorAction Continue |
+    Select-Object Name, Status, StartType
+Get-WindowsFeature -Name Windows-Defender
+Get-ItemProperty -LiteralPath &#x27;HKLM:\SOFTWARE\Policies\Microsoft\Windows Advanced Threat Protection&#x27; -Name ForceDefenderPassiveMode -ErrorAction Continue
+Get-WinEvent -LogName &#x27;Microsoft-Windows-Windows Defender/Operational&#x27; -MaxEvents 50 |
+    Select-Object TimeCreated, Id, LevelDisplayName, Message</code></pre>
+<p>Compare <code>AMRunningMode</code> with real-time protection and service status. Keep sensor health, antivirus mode, policy results, and portal freshness as separate checks. A missing <code>ForceDefenderPassiveMode</code> value does not establish the effective mode.</p>
 </section>
 
-<section id="symptoms">
-<h2>3. Observed symptoms</h2>
-<ul>
-<li>Defender portal showed <strong>Defender Antivirus not active</strong>.</li>
-<li>Device health showed <strong>Defender Antivirus mode: Disabled</strong>.</li>
-<li>Windows Defender UI showed <strong>PC status: At risk</strong>.</li>
-<li>Windows Defender Service appeared stopped or stopping.</li>
-<li>Security intelligence update KB2267602 tried to install but did not complete.</li>
-<li>The Defender AV policy showed <strong>Error</strong> for this server.</li>
-<li>Some policy settings succeeded, while runtime AV-dependent settings failed.</li>
-</ul>
-</section>
+<section id="analysis"><h2>Choose the branch that matches the intended design</h2>
+<ul><li><strong>Defender should be primary:</strong> confirm the Defender feature is installed, required updates are present, and any previous antivirus was removed using its supported procedure. Inspect effective policy and the events around startup failures.</li>
 
-<section id="evidence">
-<h2>4. Evidence collected</h2>
+<li><strong>Another antivirus should be primary:</strong> confirm that product is healthy and that the supported Defender coexistence configuration is intentional. Passive mode requires the modern unified MDE solution on Server 2016.</li>
 
-<h3>4.1 Registry evidence</h3>
-<p>Under <code>HKLM\SOFTWARE\Microsoft\Windows Defender</code>, the following values were observed:</p>
-<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
-<tr><th>Registry value</th><th>Observed value</th><th>Interpretation</th></tr>
-<tr><td>DisableAntiSpyware</td><td>0</td><td>Defender is not disabled through this legacy key.</td></tr>
-<tr><td>DisableAntiVirus</td><td>0</td><td>AV is not explicitly disabled through this key.</td></tr>
-<tr><td>IsServiceRunning</td><td>1</td><td>Service state has been detected as running at some point.</td></tr>
-<tr><td>PassiveMode</td><td>2</td><td><strong>Key evidence:</strong> Defender AV is in passive/EDR-only/disabled mode.</td></tr>
-<tr><td>ProductStatus</td><td>0</td><td>Supports abnormal or non-active AV state.</td></tr>
-<tr><td>ProductType</td><td>2</td><td>Server/Defender product type state.</td></tr>
-</table></div>
-<div class="finding"><strong>Important:</strong> PassiveMode = 2 was the strongest local indicator that Defender AV was intentionally not active.</div>
-
-<h3>4.2 Defender portal evidence</h3>
-<ul>
-<li>Device page reported <strong>Defender Antivirus not active</strong>.</li>
-<li>Device health status reported <strong>Defender Antivirus mode: Disabled</strong>.</li>
-<li>The device had no active alerts or incidents at the time of review.</li>
-<li>Exposure level was shown as High, but this was not the direct cause of the AV failure.</li>
+<li><strong>Feature installation fails:</strong> follow the <a href="Windows_Server_2016_MDE_Onboarding_Remediation.html">Server 2016 component-repair investigation</a> before repeating onboarding.</li>
 </ul>
 
-<h3>4.3 Policy evidence</h3>
-<p>The policy <strong>Standard - AV Enforcement Policy (Windows)</strong> reported error on the device. Per-setting status showed several runtime AV-dependent failures:</p>
-<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
-<tr><th>Setting</th><th>Status</th><th>Error code</th><th>Interpretation</th></tr>
-<tr><td>Cloud Block Level</td><td>Error</td><td>0</td><td>Requires active AV/cloud protection stack.</td></tr>
-<tr><td>Cloud Extended Timeout</td><td>Error</td><td>0</td><td>Depends on cloud protection being available.</td></tr>
-<tr><td>Enable Low CPU Priority</td><td>Error</td><td>0</td><td>Requires active Defender AV engine.</td></tr>
-<tr><td>Enable Network Protection</td><td>Error</td><td>-2147467259 / 0x80004005</td><td>Network Protection cannot enable when Defender AV is disabled/passive.</td></tr>
-<tr><td>Exclusions policy</td><td>Succeeded</td><td>N/A</td><td>Preferences can be written even if AV engine is inactive.</td></tr>
-</table></div>
-<div class="ok"><strong>Interpretation:</strong> The policy is not globally broken. The device accepts some settings, but AV-runtime settings fail because Defender AV is not running.</div>
+<p>Active antivirus, passive antivirus, disabled antivirus, and EDR in block mode provide different capabilities. EDR in block mode does not replace all active antivirus protections. See <a href="https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-antivirus-compatibility">Defender Antivirus compatibility and modes</a>.</p>
 
-<h3>4.4 GPO evidence</h3>
-<p>A GPO report was reviewed. It contained Edge, SmartScreen, Firewall, RDS, Windows Update, OneDrive, and LAPS settings. No clear policy was found that turns off Microsoft Defender Antivirus. Conclusion: <strong>GPO was not identified as the cause</strong>.</p>
-
-<h3>4.5 dsregcmd / Intune evidence</h3>
-<pre>AzureAdJoined : YES
-DomainJoined  : YES
-MdmUrl        : https://enrollment.manage.microsoft.com/enrollmentserver/discovery.svc</pre>
-<p>The device is visible in Intune, but the Intune device list shows <strong>Managed by: MDE</strong>. That means the device is visible because of Defender for Endpoint integration. It does not prove classic Intune MDM is pushing the Defender AV mode.</p>
+<p>Do not assume Windows client antivirus-detection behavior applies to Server 2016. Microsoft documents that installing another antivirus does not automatically disable Defender on this server OS. See <a href="https://learn.microsoft.com/en-us/windows-server/security/windows-defender/windows-defender-overview-windows-server">Defender on Windows Server</a>.</p>
 </section>
 
-<section id="ruled-out">
-<h2>5. What was ruled out</h2>
-<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
-<tr><th>Potential cause</th><th>Status</th><th>Reason</th></tr>
-<tr><td>Broken AV policy</td><td>Unlikely</td><td>The same policy applies many settings successfully. Failures are specific to AV-runtime settings.</td></tr>
-<tr><td>Different Defender device group</td><td>Ruled out by user</td><td>User confirmed the server is in the same device group.</td></tr>
-<tr><td>GPO disabling Defender</td><td>Not found</td><td>GPO report did not show Defender AV turn-off/passive settings.</td></tr>
-<tr><td>SFC / system file corruption</td><td>Unlikely</td><td>SFC did not find integrity violations.</td></tr>
-<tr><td>Tamper protection alone</td><td>Not root cause</td><td>Tamper blocked edits earlier, but troubleshooting mode later showed <code>DisableTamperProtection : True</code>. AV mode remained the key blocker.</td></tr>
-<tr><td>Quest KACE itself as AV</td><td>Unproven</td><td>KACE is not normally AV, but it may have deployed or historically managed another security product. WSC registration must be checked.</td></tr>
-</table></div>
+<section id="next-steps"><h2>Use supported remediation</h2>
+<p>For an onboarded server that should run Defender as primary, Microsoft documents <code>ForceDefenderPassiveMode = 0</code> under <code>HKLM\SOFTWARE\Policies\Microsoft\Windows Advanced Threat Protection</code> and a restart when returning from the relevant passive/disabled scenario. Confirm the prerequisites and management source before changing it. Value <code>1</code> requests passive mode; it is not a generic repair setting.</p>
+
+<p>Platform version, onboarding history, policy, and tamper protection affect transitions. Use the current <a href="https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-antivirus-windows-server-configure">Windows Server configuration guidance</a> for the applicable case. Do not edit undocumented status values, force protected-service startup settings, or use repeated offboarding as the default fix.</p>
 </section>
 
-<section id="analysis">
-<h2>6. Technical analysis</h2>
-<h3>6.1 Preferences do not prove AV is active</h3>
-<p><code>Get-MpPreference</code> shows configuration preferences, but it does not prove the Defender AV engine is active. On Server 2016, preferences and policies can exist while AV remains passive/disabled.</p>
+<section id="tamper"><h2>Troubleshooting mode and tamper protection</h2>
+<p>The earlier article incorrectly described <code>-DisableTamperProtection</code> as unsupported. Microsoft's current troubleshooting-mode procedure includes <code>Set-MpPreference -DisableTamperProtection $true</code> after troubleshooting mode is active on a supported device. This is a temporary diagnostic action, not an ordinary policy setting.</p>
 
-<h3>6.2 Server 2016 passive mode behavior</h3>
-<p>Windows Server 2016 behaves differently from newer Windows versions. If Defender AV is placed into passive/disabled mode, it may not automatically return to active mode when the original condition is gone. This can happen if another AV or security tool was detected at onboarding time or left remnants behind.</p>
+<p>Server 2016 requires the modern unified solution and the documented sensor, platform, and engine minimum versions. A visible portal button alone does not prove eligibility. Confirm activation, check <code>IsTamperProtected</code>, and follow the time limit and restoration behavior in <a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshooting-mode-enable">Enable troubleshooting mode</a>. Use it only when the investigation requires a protected-setting change.</p>
 
-<h3>6.3 Why same onboarding can lead to different outcomes</h3>
-<ul>
-<li>Another AV may have been installed or registered at onboarding time.</li>
-<li>An old security product may have left Windows Security Center registration behind.</li>
-<li>The server may have been built from a different template.</li>
-<li>The onboarding happened under a different Defender platform/version state.</li>
-<li>Server 2016 does not reliably self-correct the mode later.</li>
-</ul>
-
-<h3>6.4 KACE discussion</h3>
-<p>Quest KACE itself is not an antivirus engine. However, if KACE deployed or previously managed third-party endpoint security, Windows may still have a registered AV product or remnants. That can keep Defender in passive mode on Server 2016.</p>
+<p>Also, the Server 2016 Windows Security interface can display inaccurate real-time protection status when tamper protection is enabled. Corroborate it with local PowerShell state; see <a href="https://learn.microsoft.com/en-us/defender-endpoint/prevent-changes-to-security-settings-with-tamper-protection">tamper protection guidance</a>.</p>
 </section>
 
-<section id="tamper">
-<h2>7. Troubleshooting mode and tamper protection</h2>
-<p>Troubleshooting mode was enabled from the Defender portal. It is time-limited and allows some local Defender changes for investigation.</p>
-<p>Earlier, editing the <code>PassiveMode</code> registry value failed with an error writing the new value, which indicated tamper protection or MDE self-protection was blocking local changes.</p>
-<p>Later, <code>Get-MpPreference</code> showed:</p>
-<pre>DisableTamperProtection : True</pre>
-<p>This suggests that during troubleshooting mode, tamper protection was effectively relaxed or disabled for the troubleshooting window.</p>
-<div class="warn"><strong>Clarification:</strong> There is no supported <code>Set-MpPreference -DisableTamperProtection</code> parameter. Troubleshooting mode can relax protections, but it does not make tamper protection a permanent locally managed setting.</div>
+<section id="validation"><h2>Close the case with evidence</h2>
+<p>After the approved change and any required restart, repeat the collection. For a primary Defender deployment, expect normal antivirus operation and enabled real-time protection, current security intelligence, and no recurring startup error. Check the intended settings individually, then confirm fresh MDE telemetry and updated portal state.</p>
+<p>Record what changed, before-and-after output, elapsed time, and remaining failures. If the service still cannot start, preserve the event and support diagnostics for escalation. A clean SFC result or a successful onboarding command alone does not close this case.</p>
 </section>
 
-<section id="commands">
-<h2>8. Useful commands</h2>
-<h3>Check Defender engine state</h3>
-<pre>Get-MpComputerStatus | select AMRunningMode, AMServiceEnabled, AntivirusEnabled, RealTimeProtectionEnabled, IsTamperProtected</pre>
-<h3>Check Defender preferences</h3>
-<pre>Get-MpPreference</pre>
-<h3>Check PassiveMode registry value</h3>
-<pre>reg query "HKLM\SOFTWARE\Microsoft\Windows Defender" /v PassiveMode</pre>
-<h3>Check policy-based Defender registry keys</h3>
-<pre>reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /s</pre>
-<h3>Check if another AV is still registered</h3>
-<pre>Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntivirusProduct | select displayName, pathToSignedProductExe, timestamp</pre>
-<h3>Check filter drivers</h3>
-<pre>fltmc filters</pre>
-<h3>Check Defender service</h3>
-<pre>sc query windefend
-sc qc windefend</pre>
-<h3>Start Defender AV during troubleshooting mode</h3>
-<pre>Set-Service WinDefend -StartupType Automatic
-Start-Service WinDefend</pre>
-<h3>Update signatures manually</h3>
-<pre>"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate</pre>
-<h3>Check Defender operational logs</h3>
-<pre>wevtutil qe "Microsoft-Windows-Windows Defender/Operational" /c:50 /f:text</pre>
-<h3>Check Azure AD / MDM registration</h3>
-<pre>dsregcmd /status</pre>
-</section>
-
-<section id="root-cause">
-<h2>9. Likely root cause</h2>
-<div class="finding"><strong>Most likely root cause:</strong> The server is stuck in Server 2016 Defender passive/disabled AV mode, indicated by <code>PassiveMode = 2</code> and Defender portal showing <strong>Defender Antivirus mode: Disabled</strong>. The state was likely set during or before onboarding when Windows believed another AV/security product existed, or from an older onboarding/baseline condition.</div>
-<ol>
-<li>Server 2016 was onboarded to Microsoft Defender for Endpoint.</li>
-<li>At some point, Defender AV was placed into passive/disabled mode.</li>
-<li>Server 2016 did not automatically switch Defender AV back to active.</li>
-<li>The AV Enforcement Policy tried to configure Defender AV features.</li>
-<li>Settings that require the Defender AV engine failed.</li>
-<li>The portal reported the AV policy as Error and Defender Antivirus as not active.</li>
-</ol>
-</section>
-
-<section id="next-steps">
-<h2>10. Recommended next steps</h2>
-<h3>10.1 Immediate diagnostics</h3>
-<ol>
-<li>Run <code>Get-MpComputerStatus</code> to confirm current AV running mode.</li>
-<li>Run the WSC antivirus product query to confirm no ghost/leftover AV registration.</li>
-<li>Check Defender operational event log for service start or AV mode errors.</li>
-<li>Compare outputs with one working Server 2016 machine in the same site/group.</li>
-</ol>
-
-<h3>10.2 If no other AV is registered and AV remains disabled</h3>
-<ol>
-<li>Offboard the server from Microsoft Defender for Endpoint.</li>
-<li>Reboot.</li>
-<li>Ensure no third-party AV remnants or WSC registrations exist.</li>
-<li>Ensure Defender AV components are installed and healthy.</li>
-<li>Re-onboard using the current supported Defender for Endpoint onboarding method for Windows Server 2016.</li>
-<li>Verify <code>AMRunningMode</code>, <code>AntivirusEnabled</code>, and policy status.</li>
-</ol>
-
-<h3>10.3 Expected final state</h3>
-<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table>
-<tr><th>Field</th><th>Expected value</th></tr>
-<tr><td>AMRunningMode</td><td>Normal</td></tr>
-<tr><td>AMServiceEnabled</td><td>True</td></tr>
-<tr><td>AntivirusEnabled</td><td>True</td></tr>
-<tr><td>RealTimeProtectionEnabled</td><td>True</td></tr>
-<tr><td>Defender portal AV mode</td><td>Active</td></tr>
-<tr><td>AV Enforcement Policy</td><td>Succeeded</td></tr>
-</table></div>
-</section>
-
-<section id="customer-message">
-<h2>11. Suggested customer-facing wording</h2>
-<p>The issue on SERVER2016-APP01 is not caused by a broken AV policy or by GPO. The server is receiving the Defender AV policy, but Defender Antivirus itself is not active. The local registry shows PassiveMode = 2 and the Defender portal reports Defender Antivirus mode as Disabled. On Windows Server 2016, Defender AV can remain in passive/disabled mode after onboarding or after another security product was detected, and it does not always automatically switch back to active mode later.</p>
-<p>The recommended remediation is to verify no other AV product is still registered, then offboard and re-onboard the server using the current supported Defender for Endpoint onboarding method for Server 2016. After that, Defender AV should become active and the assigned AV enforcement policy should apply successfully.</p>
-</section>
-
-<section><p class="small">Generated from troubleshooting conversation. Created: 2026-06-17 07:29 UTC</p></section>
-</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p></div><a href="#top">Back to top ↑</a></footer>
+</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p>
+</div><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>

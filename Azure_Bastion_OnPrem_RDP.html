@@ -9,36 +9,49 @@
 </head>
 <body id="top"><a class="skip-link" href="#main">Skip to content</a>
 <nav class="site-nav" aria-label="Main navigation"><div class="nav-inner"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SF<span> / </span>N</span><span>Security Field Notes</span></a><div class="nav-links"><a href="index.html#library">Notes</a><a href="index.html#about">About</a><a href="https://github.com/DBANFD/demomx">GitHub <span aria-hidden="true">↗</span></a></div></div></nav>
-<header class="article-header"><div class="header-inner"><p class="eyebrow">Azure / Architecture note</p><h1>Reaching on-premises servers with Azure Bastion</h1><p class="subtitle">A practical field note for using Azure Bastion IP-based connection to reach an on-premises Windows host over private network connectivity.</p></div></header>
+
+<header class="article-header"><div class="header-inner"><p class="eyebrow">Azure / Architecture note</p>
+<h1>Reaching on-premises servers with Azure Bastion</h1><p class="subtitle">A practical field note for using Azure Bastion IP-based connection to reach an on-premises Windows host over private network connectivity.</p>
+</div></header>
 <main id="main" class="article-main">
 <div class="article-nav"><a href="index.html">← Back to Security Field Notes</a></div>
-<div class="card">
-<div class="meta"><span class="tag tag-blue">Azure Security</span> Published note · anonymized field reference</div>
+<p class="meta"><strong>Technical review:</strong> 2 November 2026 · Checked against Microsoft documentation. Commands and deployment flows have not been validated in a live customer environment as part of this review.</p>
+<nav class="toc" aria-label="On this page"><h2>On this page</h2>
+<a href="#architecture">Use Bastion as the RDP entry point</a><a href="#prerequisites">Check the complete path</a><a href="#connect">Connect from the portal or native client</a><a href="#validation">Distinguish network failure from logon failure</a></nav>
 
-<h2>Purpose</h2>
-<p>This note describes how to use Azure Bastion to reach an on-premises Windows host over RDP without exposing RDP to the internet and without building a traditional jump server.</p>
-<div class="note"><strong>Design idea:</strong> the admin connects to Azure Bastion, Bastion targets the private IP of the on-premises server, and traffic flows over VPN or ExpressRoute.</div>
-<h2>When this makes sense</h2>
-<ul><li>You already have hybrid connectivity between Azure and the on-premises network.</li><li>You want controlled administrative RDP access without public IPs.</li><li>You want to avoid VPN client rollout for administrators.</li><li>You are comfortable using Bastion as a controlled jump point.</li></ul>
-<h2>High-level flow</h2>
-<ol><li>User opens Azure Bastion in the Azure portal or uses the native client option.</li><li>Bastion connects to the target by private IP address.</li><li>The traffic is routed through the Azure virtual network to the on-premises network over VPN or ExpressRoute.</li><li>The target server only needs to allow RDP from the expected network path.</li></ol>
-<h2>Prerequisites</h2>
-<div class="kv"><div>Azure Bastion SKU</div><div>Use Standard or higher for IP-based connection.</div><div>Hybrid connectivity</div><div>Site-to-site VPN or ExpressRoute private peering must exist between Azure and the on-premises network.</div><div>Routing</div><div>The Bastion virtual network must be able to route to the on-premises server subnet.</div><div>Firewall</div><div>Allow TCP 3389 from the expected Bastion path to the Windows host.</div><div>Identity</div><div>Use local or domain credentials for the RDP session.</div></div>
-<h2>Setup steps</h2>
-<ol><li><strong>Deploy or upgrade Azure Bastion.</strong> Place Bastion in the virtual network that has the hybrid route to the on-premises network.</li><li><strong>Enable IP-based connection.</strong> In the Bastion configuration, enable IP-based connection and wait for the resource to update.</li><li><strong>Validate routing.</strong> Confirm the on-premises server subnet is reachable from the Azure network path used by Bastion.</li><li><strong>Connect by private IP.</strong> Open the Bastion resource, select the IP-based connection option, enter the private IP, choose RDP, and connect.</li><li><strong>Restrict access.</strong> Use RBAC, network controls, and administrative process controls so Bastion does not become an unmanaged shared jump path.</li></ol>
-<h2>Native client example</h2><p>When native client support is enabled, the Azure CLI can start an RDP session through Bastion to a private IP.</p>
-<pre><code>az network bastion rdp \
-  --name &lt;bastion-name&gt; \
-  --resource-group &lt;resource-group&gt; \
-  --target-ip-address 10.20.30.40</code></pre>
-<h2>Common problems</h2>
-<ul><li><strong>Routing is wrong.</strong> The most common issue is that the Bastion virtual network does not have a valid path to the target subnet.</li><li><strong>Forced tunneling/default route breaks the design.</strong> Be careful with advertised default routes over ExpressRoute or VPN.</li><li><strong>Firewall rules are too narrow or too broad.</strong> Allow the required path, but avoid opening RDP broadly across internal networks.</li><li><strong>Expecting Entra ID login for IP-based RDP.</strong> For IP-based RDP, plan for local or domain credentials.</li></ul>
-<div class="warning"><strong>Design warning:</strong> this is still RDP. Bastion reduces exposure, but it does not remove the need for privileged access control, logging, patching, and least privilege.</div>
-<h2>Sources</h2>
-<ul><li><a href="https://learn.microsoft.com/en-us/azure/bastion/connect-ip-address">Microsoft Learn: Azure Bastion IP-based connection</a></li><li><a href="https://learn.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows">Microsoft Learn: Connect to a Windows VM by using RDP and Bastion</a></li><li><a href="https://techcommunity.microsoft.com/blog/itopstalkblog/connect-to-your-on-prem-server-from-anywhere/3565194">Microsoft Tech Community: Connect to your on-prem server from anywhere</a></li></ul>
+<section id="architecture"><h2>Use Bastion as the RDP entry point</h2>
+<p>Azure Bastion can reach an on-premises Windows server by private IP when the Bastion virtual network has connectivity through a site-to-site VPN or ExpressRoute private peering. The target does not need a public IP.</p>
+<div class="finding"><strong>Traffic path:</strong> Administrator → Azure Bastion → private connectivity → on-premises RDP target.</div><p>This pattern requires Standard or a higher supported SKU and IP-based connections enabled. IP-based RDP does not support Microsoft Entra authentication. Use credentials accepted by the target Windows server. Forced tunneling through a VPN or an ExpressRoute-advertised default route is unsupported for this design; user-defined routes on AzureBastionSubnet are also unsupported. See <a href="https://learn.microsoft.com/en-us/azure/bastion/connect-ip-address">Bastion IP-based connections and limitations</a>.</p>
+</section>
 
-</div>
+<section id="prerequisites"><h2>Check the complete path</h2>
+<ul><li>Verify the private connection and return routing between the Bastion network and the target.</li>
+<li>Allow the intended RDP traffic from the Bastion subnet through intermediate and Windows firewalls. Avoid opening RDP to the internet.</li>
+<li>Confirm Remote Desktop is enabled and the target account has remote sign-in rights.</li>
+<li>Confirm the administrator can access the Bastion resource and select the correct subscription.</li>
+</ul>
+<p>If an NSG protects AzureBastionSubnet, preserve every required Bastion control-plane and service rule, not just the target RDP rule. Use the <a href="https://learn.microsoft.com/en-us/azure/bastion/bastion-nsg">documented Bastion NSG rules</a> and adapt target-side rules to the actual private network. Keep firewall changes narrow and record the original configuration.</p>
+</section>
 
-</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p></div><a href="#top">Back to top ↑</a></footer>
+<section id="connect"><h2>Connect from the portal or native client</h2>
+<p>In the Bastion resource's connection page, choose an IP-address connection, enter the target's private address, and select RDP with the target's supported credentials. A successful Azure sign-in does not grant a Windows logon on the target.</p>
+<p>For the native Windows client, enable native client support on Bastion and install a supported Azure CLI version (Microsoft documents 2.32 or later). Replace all placeholders, then run in PowerShell:</p>
+<pre><code>az login
+az account set --subscription &quot;&lt;subscription-id&gt;&quot;
+az network bastion rdp --name &quot;&lt;bastion-name&gt;&quot; --resource-group &quot;&lt;resource-group&gt;&quot; --target-ip-address &quot;&lt;private-ip&gt;&quot;</code></pre>
+<p>IP-based native connections do not support custom ports or protocols. Use the documented RDP path on TCP 3389 and check the current <a href="https://learn.microsoft.com/en-us/azure/bastion/connect-vm-native-client-windows">native Windows connection requirements</a>.</p>
+</section>
+
+<section id="validation"><h2>Distinguish network failure from logon failure</h2>
+<ol><li>Confirm the private circuit or tunnel is healthy and the target and return routes are present.</li>
+<li>Inspect firewall logs for the expected Bastion-subnet-to-target flow.</li>
+<li>If the RDP session reaches Windows but authentication fails, investigate account format, rights, and Windows logon events.</li>
+<li>Complete a test session with an authorized pilot user and confirm a user without access cannot use the same route.</li>
+</ol>
+<p>A test from an ordinary Azure VM is useful evidence for that VM's path, but it does not prove Bastion's subnet rules and routing are correct. Keep those checks separate. After testing, remove temporary rules and accounts, then confirm the intended access still works.</p>
+</section>
+
+</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes<span class="footer-dot"> / </span>Bill Andersson</a><p>Practical notes on identity, endpoint protection, and Azure.</p>
+</div><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>

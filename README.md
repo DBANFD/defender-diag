@@ -18,6 +18,10 @@ Practical security notes by **Bill Andersson**, covering Microsoft identity, end
 
 This is a personal collection of troubleshooting investigations, implementation guides, and architecture notes. Each article describes a specific scenario and practical next steps. Check current product documentation and adapt the guidance before applying it in your environment.
 
+## Technical review
+
+All five existing articles were reviewed against Microsoft documentation on 2 November 2026. Each article links its sources and distinguishes documented behavior from historical observations. This was a documentation and command-syntax review, not a live tenant or server validation.
+
 ## Site structure
 
 The site uses plain HTML, CSS, and a small JavaScript filter. It requires no build step or external dependencies. All articles remain accessible without JavaScript.
