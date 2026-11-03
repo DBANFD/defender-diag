@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Defender policy says “Succeeded”. Is the setting effective? | Security Field Notes</title><meta name="description" content="Compare policy reporting, local configuration, and running protection before closing an antivirus policy issue."><link rel="stylesheet" href="site.css"></head>
+<body id="top"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav" aria-label="Main navigation"><div class="nav-inner"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">SF<span> / </span>N</span><span>Security Field Notes</span></a><div class="nav-links"><a href="index.html#library">Notes</a><a href="https://github.com/DBANFD/demomx">GitHub <span aria-hidden="true">↗</span></a></div></div></nav>
+
+<header class="article-header"><div class="header-inner"><p class="eyebrow">Endpoint / Troubleshooting</p>
+<h1>Defender policy says “Succeeded”. Is the setting effective?</h1><p>Compare policy reporting, local configuration, and running protection before closing an antivirus policy issue.</p>
+</div></header>
+<main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
+<p class="meta"><strong>Reviewed:</strong> 3 November 2026. All scenarios, names, identifiers, and example results are synthetic. No customer material is used.</p>
+
+<p class="meta"><strong>Validation:</strong> Microsoft documentation reviewed; PowerShell syntax checked and collector failure handling tested with synthetic mocks. No live endpoint protection test performed.</p>
+
+<nav class="toc" aria-label="On this page"><h2>On this page</h2>
+<a href="#scope">Define what success means</a><a href="#collect">Collect a narrow local snapshot</a><a href="#interpret">Read the fields together</a><a href="#source">Find the setting owner</a><a href="#verify">Verify the correction</a></nav>
+<section id="scope"><h2>Define what success means</h2>
+<p>A green policy status is useful evidence, but it answers only part of the operational question. For a particular endpoint, did the intended setting arrive, does the current configuration match, and is the relevant protection actually running?</p>
+<p>This workflow covers Windows endpoints with the Defender PowerShell module. Run local checks from elevated Windows PowerShell. Decide first whether Defender should be the primary antivirus or intentionally passive. The expected result depends on that design.</p>
+<div class="finding"><strong>Synthetic scenario:</strong> An administrator expects real-time protection on a lab endpoint. A policy reports success, but local status reports it disabled. That discrepancy is a starting point, not proof that the policy service is broken.</div></section>
+
+<section id="collect"><h2>Collect a narrow local snapshot</h2>
+<p><a href="Get-DefenderSnapshot.ps1" download>Download the read-only PowerShell collector</a> · <a href="https://github.com/DBANFD/demomx/blob/main/Get-DefenderSnapshot.ps1">Inspect source</a></p>
+<p>Inspect the script, then run it locally. It reads selected status and preference fields and prints an object. It does not change settings or export exclusions, hostnames, or user names.</p>
+<pre><code>.\Get-DefenderSnapshot.ps1 | ConvertTo-Json -Depth 4</code></pre>
+<p>The collector reports <code>Unavailable</code> when a read fails. Missing properties remain empty. Neither condition means protection is healthy. To obtain the underlying error during local troubleshooting, run the relevant cmdlet directly.</p>
+<p><a href="https://learn.microsoft.com/en-us/powershell/module/defender/get-mpcomputerstatus">Get-MpComputerStatus</a> reports antimalware status. <a href="https://learn.microsoft.com/en-us/powershell/module/defender/get-mppreference">Get-MpPreference</a> reports configuration preferences. Compare both rather than treating them as interchangeable.</p>
+</section>
+
+<section id="interpret"><h2>Read the fields together</h2>
+<div class="table-scroll" role="region" aria-label="Reference table" tabindex="0"><table><thead><tr><th>Question</th><th>Evidence</th><th>Interpretation</th></tr>
+</thead><tbody><tr><td>What mode is running?</td><td>AMRunningMode</td><td>Compare with the intended active/passive design; investigate an unexpected mode.</td></tr>
+<tr><td>Is real-time protection operating?</td><td>RealTimeProtectionEnabled</td><td>A false value requires explanation when active protection is intended.</td></tr>
+<tr><td>What is the local preference?</td><td>DisableRealtimeMonitoring</td><td>This is negatively named: False does not request disabling real-time monitoring. It alone does not prove runtime protection.</td></tr>
+<tr><td>Could protection block a change?</td><td>IsTamperProtected</td><td>Review supported management and troubleshooting procedures. Do not disable protection merely to make a policy report green.</td></tr>
+<tr><td>How current is the evidence?</td><td>Collection time, platform version, signature timestamp</td><td>Record these beside the policy report time; do not compare observations as if they were simultaneous.</td></tr>
+</tbody></table></div><p>Example reasoning: <code>DisableRealtimeMonitoring=False</code> with <code>RealTimeProtectionEnabled=False</code> means the selected preference does not explain the inactive runtime state. Check mode, feature availability, service health, and events before changing policy.</p>
+</section>
+
+<section id="source"><h2>Find the setting owner</h2>
+<p>Identify every management path applying the specific setting: MDE security settings management, Intune, Group Policy, Configuration Manager, or local configuration. Inspect the device's Effective settings view where available, plus assignment and per-setting results in the management service. Record the source and timestamp.</p>
+<p>Microsoft describes a general precedence order, but it also documents exceptions and shared configuration paths. Do not assume a single blanket “MDM always wins” rule. Prefer the supported Defender cmdlets over inferring effective settings from registry values; some MDE-managed exclusion values are no longer readable directly there. Follow <a href="https://learn.microsoft.com/en-us/defender-endpoint/troubleshoot-settings">Microsoft’s settings troubleshooting procedure</a>.</p>
+<p>For the lab scenario, maintain a short comparison: expected value, assigned source, reported value, local preference, runtime status, and next diagnostic. Resolve an actual conflict at its management source rather than repeatedly applying a local override.</p>
+</section>
+
+<section id="verify"><h2>Verify the correction</h2>
+<ol><li>Make one scoped change through the intended management tool.</li>
+<li>Allow its documented delivery cycle and any required restart; collect a new snapshot.</li>
+<li>Check the affected setting and runtime field again, then confirm fresh portal reporting.</li>
+<li>Use the feature's approved validation procedure if behavioral proof is required. A successful command or status field is not an end-to-end prevention test.</li>
+</ol>
+<p>If the problem is an inactive Server 2016 engine, continue with <a href="Server2016_Defender_Troubleshooting.html">the Server 2016 diagnostic path</a>. Keep actual snapshots private: even this limited output describes an endpoint's protection state.</p>
+</section>
+</main><footer class="site-footer"><div><a class="brand" href="index.html">Security Field Notes</a><p>Practical notes on identity, endpoint protection, and Azure.</p>
+
+</div><a href="#top">Back to top ↑</a></footer>
+</body>
+</html>

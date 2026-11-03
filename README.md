@@ -13,6 +13,11 @@ Practical security notes covering Microsoft identity, endpoint protection, and A
 | Endpoint | [Repairing Defender onboarding on Server 2016](Windows_Server_2016_MDE_Onboarding_Remediation.html) |
 | Endpoint | [When Defender Antivirus stays disabled](Server2016_Defender_Troubleshooting.html) |
 | Azure | [Reaching on-premises servers with Azure Bastion](Azure_Bastion_OnPrem_RDP.html) |
+| Endpoint | [Defender policy says “Succeeded”. Is the setting effective?](Defender_Effective_Policy.html) |
+| Endpoint | [Five KQL checks before trusting an endpoint investigation](KQL_Endpoint_Evidence_Checks.html) |
+| Endpoint | [Defender on Linux: a health-check runbook](Defender_Linux_Health_Runbook.html) |
+| Endpoint | [A vulnerability finding is not proof of exposure](Vulnerability_Exposure_Evidence.html) |
+| Identity | [Entra device IDs explained through a practical lookup script](Entra_Device_ID_Lookup.html) |
 
 ## About these notes
 
@@ -21,6 +26,18 @@ A collection of troubleshooting investigations, implementation guides, and archi
 ## Technical review
 
 All five existing articles were reviewed against Microsoft documentation on 2 November 2026. Each article links its sources and distinguishes documented behavior from historical observations. This was a documentation and command-syntax review, not a live tenant or server validation.
+
+## New practical notes and downloads
+
+Five additional notes were reviewed against Microsoft documentation on 3 November 2026. All new scenarios, names, identifiers, and sample results are synthetic, not anonymized customer cases. No customer exports or logs are included.
+
+- [Defender snapshot](Get-DefenderSnapshot.ps1): local read-only status and selected preferences.
+- [Endpoint evidence queries](endpoint-evidence-checks.kql): five independent Defender XDR hunting queries.
+- [Linux checklist](linux-defender-checks.sh): health and cloud-connectivity checks; no protection changes.
+- [Exposure worksheet](exposure-assessment-template.csv): one entirely fictional example row.
+- [Entra device lookup](Find-EntraDeviceId.ps1): exact-name offline lookup with explicit ambiguous and invalid results.
+
+PowerShell syntax and synthetic lookup/collector tests passed. Bash syntax and helper behavior were tested with synthetic stubs. KQL was schema/operator reviewed, not executed in a tenant. No live endpoint or tenant validation is claimed. Actual outputs and populated worksheets can contain operational or identifying data; keep them private.
 
 ## Site structure
 

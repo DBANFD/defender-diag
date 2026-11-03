@@ -1,0 +1,55 @@
+// Five independent queries. Select ONE complete numbered block to run.
+// Defender XDR Advanced Hunting; requires table access and retained MDE data.
+// Replace synthetic name / placeholder device ID locally. Never publish results.
+
+// 1. Resolve a synthetic example name to MDE identities, within available history.
+let TargetName = "lab-win-01.example.com";
+DeviceInfo
+| where Timestamp > ago(7d)
+| where DeviceName =~ TargetName
+| summarize arg_max(Timestamp, *) by DeviceId
+| project Timestamp, DeviceId, DeviceName, AadDeviceId, OSPlatform
+| order by Timestamp desc
+
+// 2. Compare the latest observed record across three tables.
+let TargetId = "REPLACE_WITH_MDE_DEVICE_ID";
+let StartTime = ago(7d);
+union
+ (DeviceInfo | where Timestamp > StartTime and DeviceId == TargetId
+  | summarize Rows=count(), LastObserved=max(Timestamp) | extend Source="DeviceInfo"),
+ (DeviceProcessEvents | where Timestamp > StartTime and DeviceId == TargetId
+  | summarize Rows=count(), LastObserved=max(Timestamp) | extend Source="DeviceProcessEvents"),
+ (DeviceNetworkEvents | where Timestamp > StartTime and DeviceId == TargetId
+  | summarize Rows=count(), LastObserved=max(Timestamp) | extend Source="DeviceNetworkEvents")
+| project Source, Rows, LastObserved
+
+// 3. Inspect recent process evidence. A 100-row sample is NOT a full export.
+let TargetId = "REPLACE_WITH_MDE_DEVICE_ID";
+DeviceProcessEvents
+| where Timestamp > ago(24h) and DeviceId == TargetId
+| project Timestamp, ActionType, FileName, FolderPath, ProcessId,
+          ProcessCreationTime, InitiatingProcessFileName, SHA1
+| top 100 by Timestamp desc
+
+// 4. Inspect network evidence, preserving event type and process context.
+let TargetId = "REPLACE_WITH_MDE_DEVICE_ID";
+DeviceNetworkEvents
+| where Timestamp > ago(24h) and DeviceId == TargetId
+| project Timestamp, ActionType, RemoteIP, RemotePort, RemoteUrl, Protocol,
+          InitiatingProcessFileName, InitiatingProcessId, InitiatingProcessCreationTime
+| top 100 by Timestamp desc
+
+// 5. Show empty hourly buckets explicitly. Empty does NOT prove sensor failure.
+let TargetId = "REPLACE_WITH_MDE_DEVICE_ID";
+let WindowEnd = now();
+let WindowStart = WindowEnd - 24h;
+let Observed = union
+ (DeviceProcessEvents | where Timestamp between (WindowStart .. WindowEnd)
+  | where DeviceId == TargetId | project Timestamp, Kind="Process"),
+ (DeviceNetworkEvents | where Timestamp between (WindowStart .. WindowEnd)
+  | where DeviceId == TargetId | project Timestamp, Kind="Network")
+ | summarize ProcessRows=countif(Kind == "Process"), NetworkRows=countif(Kind == "Network") by Bucket=bin(Timestamp,1h);
+range Bucket from bin(WindowStart,1h) to bin(WindowEnd,1h) step 1h
+| join kind=leftouter Observed on Bucket
+| project Bucket, ProcessRows=coalesce(ProcessRows,0), NetworkRows=coalesce(NetworkRows,0)
+| order by Bucket asc
