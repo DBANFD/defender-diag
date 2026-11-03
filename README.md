@@ -18,6 +18,9 @@ Practical security notes covering Microsoft identity, endpoint protection, and A
 | Endpoint | [Defender on Linux: a health-check runbook](Defender_Linux_Health_Runbook.html) |
 | Endpoint | [A vulnerability finding is not proof of exposure](Vulnerability_Exposure_Evidence.html) |
 | Identity | [Entra device IDs explained through a practical lookup script](Entra_Device_ID_Lookup.html) |
+| Operations | [Migrating Microsoft Graph security alerts to v2](Graph_Alerts_V2_Migration.html) |
+| Operations | [Moving Sentinel operations to the Defender portal](Sentinel_Defender_Portal_Transition.html) |
+| Azure | [Targeted malware scans in Defender for Storage](Defender_Storage_Targeted_Scanning.html) |
 
 ## About these notes
 
@@ -29,15 +32,19 @@ All five existing articles were reviewed against Microsoft documentation on 2 No
 
 ## New practical notes and downloads
 
-Five additional notes were reviewed against Microsoft documentation on 3 November 2026. All new scenarios, names, identifiers, and sample results are synthetic, not anonymized customer cases. No customer exports or logs are included.
+Five additional notes were reviewed against Microsoft documentation on 3 November 2026.
 
 - [Defender snapshot](Get-DefenderSnapshot.ps1): local read-only status and selected preferences.
 - [Endpoint evidence queries](endpoint-evidence-checks.kql): five independent Defender XDR hunting queries.
 - [Linux checklist](linux-defender-checks.sh): health and cloud-connectivity checks; no protection changes.
-- [Exposure worksheet](exposure-assessment-template.csv): one entirely fictional example row.
+- [Exposure worksheet](exposure-assessment-template.csv): one worked example row.
 - [Entra device lookup](Find-EntraDeviceId.ps1): exact-name offline lookup with explicit ambiguous and invalid results.
 
 Actual outputs and populated worksheets can contain operational or identifying data; keep them private.
+
+## Microsoft update notes
+
+Three notes translate recent Microsoft changes into practical checks: Graph alert API migration, the Sentinel portal transition, and targeted storage malware scans. Reviewed on 3 November 2026, with links to Microsoft documentation in each article.
 
 ## Site structure
 

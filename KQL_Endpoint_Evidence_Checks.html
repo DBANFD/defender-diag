@@ -6,7 +6,7 @@
 <h1>Five KQL checks before trusting an endpoint investigation</h1><p>Resolve the device, compare telemetry, and make gaps visible before drawing conclusions from hunting results.</p>
 </div></header>
 <main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
-<p class="meta"><strong>Reviewed:</strong> 3 November 2026. All scenarios, names, identifiers, and example results are synthetic. No customer material is used.</p>
+<p class="meta"><strong>Reviewed:</strong> 3 November 2026.</p>
 
 
 <nav class="toc" aria-label="On this page"><h2>On this page</h2>
@@ -14,7 +14,7 @@
 <section id="scope"><h2>Use the right data and scope</h2>
 <p><a href="endpoint-evidence-checks.kql" download>Download all five KQL queries</a> · <a href="https://github.com/DBANFD/demomx/blob/main/endpoint-evidence-checks.kql">Inspect source</a></p>
 <p>Run these in Microsoft Defender XDR Advanced Hunting with permission to query the relevant devices and tables. They require MDE data, available retention, and a time range that covers the query. A table-access or schema error must be resolved before interpreting the result.</p>
-<p>The download contains five independent blocks. Select one entire numbered block, including its <code>let</code> statements, at a time. Replace the synthetic device name in query 1. Use its verified <code>DeviceId</code> in queries 2–5. Do not paste an Entra device ID into that field.</p>
+<p>The download contains five independent blocks. Select one entire numbered block, including its <code>let</code> statements, at a time. Replace the example device name in query 1. Use its verified <code>DeviceId</code> in queries 2–5. Do not paste an Entra device ID into that field.</p>
 <p>These are investigation helpers, not production detection rules. They deliberately avoid automatic judgments about compromise or sensor health.</p>
 </section>
 

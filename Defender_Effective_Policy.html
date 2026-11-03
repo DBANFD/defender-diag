@@ -6,7 +6,7 @@
 <h1>Defender policy says “Succeeded”. Is the setting effective?</h1><p>Compare policy reporting, local configuration, and running protection before closing an antivirus policy issue.</p>
 </div></header>
 <main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
-<p class="meta"><strong>Reviewed:</strong> 3 November 2026. All scenarios, names, identifiers, and example results are synthetic. No customer material is used.</p>
+<p class="meta"><strong>Reviewed:</strong> 3 November 2026.</p>
 
 
 <nav class="toc" aria-label="On this page"><h2>On this page</h2>
@@ -14,7 +14,7 @@
 <section id="scope"><h2>Define what success means</h2>
 <p>A green policy status is useful evidence, but it answers only part of the operational question. For a particular endpoint, did the intended setting arrive, does the current configuration match, and is the relevant protection actually running?</p>
 <p>This workflow covers Windows endpoints with the Defender PowerShell module. Run local checks from elevated Windows PowerShell. Decide first whether Defender should be the primary antivirus or intentionally passive. The expected result depends on that design.</p>
-<div class="finding"><strong>Synthetic scenario:</strong> An administrator expects real-time protection on a lab endpoint. A policy reports success, but local status reports it disabled. That discrepancy is a starting point, not proof that the policy service is broken.</div></section>
+<div class="finding"><strong>Example:</strong> An administrator expects real-time protection on a lab endpoint. A policy reports success, but local status reports it disabled. That discrepancy is a starting point, not proof that the policy service is broken.</div></section>
 
 <section id="collect"><h2>Collect a narrow local snapshot</h2>
 <p><a href="Get-DefenderSnapshot.ps1" download>Download the read-only PowerShell collector</a> · <a href="https://github.com/DBANFD/demomx/blob/main/Get-DefenderSnapshot.ps1">Inspect source</a></p>

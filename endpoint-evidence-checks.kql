@@ -1,8 +1,8 @@
 // Five independent queries. Select ONE complete numbered block to run.
 // Defender XDR Advanced Hunting; requires table access and retained MDE data.
-// Replace synthetic name / placeholder device ID locally. Never publish results.
+// Replace example name / placeholder device ID locally. Never publish results.
 
-// 1. Resolve a synthetic example name to MDE identities, within available history.
+// 1. Resolve a example name to MDE identities, within available history.
 let TargetName = "lab-win-01.example.com";
 DeviceInfo
 | where Timestamp > ago(7d)

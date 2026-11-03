@@ -6,7 +6,7 @@
 <h1>Entra device IDs explained through a practical lookup script</h1><p>Match device names in a local export while keeping object IDs, device IDs, and ambiguous records distinct.</p>
 </div></header>
 <main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
-<p class="meta"><strong>Reviewed:</strong> 3 November 2026. All scenarios, names, identifiers, and example results are synthetic. No customer material is used.</p>
+<p class="meta"><strong>Reviewed:</strong> 3 November 2026.</p>
 
 
 <nav class="toc" aria-label="On this page"><h2>On this page</h2>
@@ -23,7 +23,7 @@
 <section id="input"><h2>Prepare a minimal export</h2>
 <p>The tool accepts a local CSV with exactly these required field names: <code>displayName</code>, <code>id</code>, and <code>deviceId</code>. Additional columns are ignored. Obtain an authorized export and map its headers deliberately; exports from different portals may use different names.</p>
 <p>If collecting with Microsoft Graph, its list-devices API requires the documented read permission and an appropriate signed-in role. Select only needed properties and retrieve all pages. The offline helper itself requires no Graph module or tenant connection. See <a href="https://learn.microsoft.com/en-us/graph/api/device-list">List devices and permissions</a>.</p>
-<p>The following fixture is fabricated. Save it as <code>synthetic-devices.csv</code> to try the script without organizational data:</p>
+<p>Save the following example as <code>example-devices.csv</code> to try the script:</p>
 <pre><code>displayName,id,deviceId
 lab-win-01,11111111-1111-4111-8111-111111111111,22222222-2222-4222-8222-222222222222
 lab-win-02,33333333-3333-4333-8333-333333333333,44444444-4444-4444-8444-444444444444
@@ -34,7 +34,7 @@ lab-win-02,55555555-5555-4555-8555-555555555555,66666666-6666-4666-8666-66666666
 <section id="run"><h2>Run the exact-name lookup</h2>
 <p><a href="Find-EntraDeviceId.ps1" download>Download the offline PowerShell lookup</a> · <a href="https://github.com/DBANFD/demomx/blob/main/Find-EntraDeviceId.ps1">Inspect source</a></p>
 <p>Use PowerShell 5.1 or later. The script reads the CSV and returns objects; it neither modifies the input nor changes any directory object or group.</p>
-<pre><code>.\Find-EntraDeviceId.ps1 -CsvPath .\synthetic-devices.csv -Name &#x27;lab-win-01&#x27;,&#x27;lab-win-02&#x27;,&#x27;lab-missing&#x27; |
+<pre><code>.\Find-EntraDeviceId.ps1 -CsvPath .\example-devices.csv -Name &#x27;lab-win-01&#x27;,&#x27;lab-win-02&#x27;,&#x27;lab-missing&#x27; |
     Format-Table RequestedName,Status,MatchCount,ObjectId,DeviceId</code></pre>
 <p>Matching trims surrounding whitespace and ignores case using an ordinal comparison. It does not use substring or wildcard matching, remove DNS suffixes, or silently choose a “newest” record. All matching rows are preserved.</p>
 </section>
@@ -46,7 +46,7 @@ lab-win-02,55555555-5555-4555-8555-555555555555,66666666-6666-4666-8666-66666666
 <tr><td>InvalidIdentifiers</td><td>One matching row but an identifier is missing, zero, or malformed</td><td>Repair or recollect the source export; do not invent an ID.</td></tr>
 <tr><td>NotFound</td><td>No exact matching name in this CSV</td><td>Check spelling, export scope, header mapping, and collection time.</td></tr>
 </tbody></table></div><p>For ambiguous matches, inspect <code>IdentifiersValid</code> on each returned row as well. Empty input or missing required headers stops with an error instead of producing misleading matches.</p>
-<p>With the synthetic fixture above, expect one <code>UniqueMatch</code> for lab-win-01, two <code>Ambiguous</code> rows for lab-win-02, and one <code>NotFound</code> row. The duplicate must be investigated, not automatically deleted.</p>
+<p>With the example data above, expect one <code>UniqueMatch</code> for lab-win-01, two <code>Ambiguous</code> rows for lab-win-02, and one <code>NotFound</code> row. The duplicate must be investigated, not automatically deleted.</p>
 </section>
 
 <section id="reconcile"><h2>Reconcile candidates with current evidence</h2>
