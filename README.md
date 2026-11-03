@@ -1,8 +1,8 @@
 # Security Field Notes
 
-Practical security notes by **Bill Andersson**, covering Microsoft identity, endpoint protection, and Azure.
+Practical security notes covering Microsoft identity, endpoint protection, and Azure.
 
-**[Browse the notebook](https://dbanfd.github.io/demomx/)** · [GitHub profile](https://github.com/DBANFD)
+**[Browse the notebook](https://dbanfd.github.io/demomx/)**
 
 ## In the notebook
 
@@ -16,7 +16,7 @@ Practical security notes by **Bill Andersson**, covering Microsoft identity, end
 
 ## About these notes
 
-This is a personal collection of troubleshooting investigations, implementation guides, and architecture notes. Each article describes a specific scenario and practical next steps. Check current product documentation and adapt the guidance before applying it in your environment.
+A collection of troubleshooting investigations, implementation guides, and architecture notes. Each article describes a specific scenario and practical next steps. Check current product documentation and adapt the guidance before applying it in your environment.
 
 ## Technical review
 
