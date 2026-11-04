@@ -6,11 +6,11 @@
 <h1>Defender on Linux: a health-check runbook</h1><p>Check installation, antivirus mode, definition health, and cloud connectivity as separate questions.</p>
 </div></header>
 <main id="main" class="article-main"><div class="article-nav"><a href="index.html#library">← Back to all field notes</a></div>
-<p class="meta"><strong>Reviewed:</strong> 3 November 2026.</p>
+<p class="meta"><strong>Reviewed:</strong> 4 November 2026.</p>
 
 
 <nav class="toc" aria-label="On this page"><h2>On this page</h2>
-<a href="#scope">Establish the intended state</a><a href="#collect">Collect health and connectivity</a><a href="#interpret">Interpret health by component</a><a href="#connectivity">Handle failed connectivity separately</a><a href="#branch">Choose the next diagnostic</a><a href="#support">Collect diagnostics and verify recovery</a></nav>
+<a href="#scope">Establish the intended state</a><a href="#collect">Collect health and connectivity</a><a href="#interpret">Interpret health by component</a><a href="#audit">Use audit mode deliberately</a><a href="#connectivity">Handle failed connectivity separately</a><a href="#branch">Choose the next diagnostic</a><a href="#support">Collect diagnostics and verify recovery</a></nav>
 <section id="scope"><h2>Establish the intended state</h2>
 <p>Before changing anything, confirm the Linux distribution, kernel, Defender package version, and intended active or passive antivirus design. Check the current supported prerequisites for the deployed release rather than assuming a Windows procedure applies.</p>
 <p>This runbook uses the local <code>mdatp</code> command. Use an authorized shell on the affected endpoint; elevate individual commands if required by the installed version and local permissions. A running process is one signal, not a full health assessment. See the <a href="https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-endpoint-linux">Linux product documentation</a>.</p>
@@ -36,6 +36,12 @@ mdatp connectivity test</code></pre>
 <tr><td>app_version / product_expiration</td><td>Check the deployed package and its support state.</td></tr>
 </tbody></table></div><p>Property availability can vary by platform and version. Use <code>mdatp health --help</code> for supported detail views. Refer to Microsoft's <a href="https://learn.microsoft.com/en-us/defender-endpoint/health-status">health-field definitions</a> for exact meanings.</p>
 <p><strong>Example:</strong> <code>healthy=true</code> together with <code>passive_mode_enabled=true</code> does not establish active antivirus prevention. Confirm whether passive operation was intended before changing it.</p>
+</section>
+
+<section id="audit"><h2>Use audit mode deliberately</h2>
+<p>Antivirus audit mode is generally available in Defender for Endpoint on Linux version <code>101.26062.0007</code> or later. It monitors and detects threats in real time but doesn't automatically remediate them. That makes it useful for measuring detections and workload impact before enforcement, but it is not equivalent to real-time prevention. Microsoft documents the enforcement values as <code>real_time</code>, <code>audit</code>, <code>on_demand</code>, and <code>passive</code>. See <a href="https://learn.microsoft.com/en-us/defender-endpoint/linux-preferences#enforcement-level-for-microsoft-defender-antivirus">Linux antivirus enforcement levels</a>.</p>
+<pre><code>mdatp health --field antivirus_enforcement_level</code></pre>
+<p>Before a pilot, record the current managed policy, confirm the installed version, choose representative non-production workloads, and decide who will review detections. During the pilot, treat detections as findings that need investigation; audit mode does not quarantine the file or terminate the process. Move to <code>real_time</code> only through the approved management policy after reviewing compatibility and outstanding detections.</p>
 </section>
 
 <section id="connectivity"><h2>Handle failed connectivity separately</h2>

@@ -9,7 +9,10 @@ if (tools) {
     const query = input.value.trim().toLowerCase();
     let count = 0;
     for (const note of notes) {
-      note.hidden = !((topic === 'All' || note.dataset.topic === topic) && note.textContent.toLowerCase().includes(query));
+      const text = note.textContent.toLowerCase();
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const matchesQuery = !query || (query.length < 5 ? new RegExp(`\\b${escaped}\\b`).test(text) : text.includes(query));
+      note.hidden = !((topic === 'All' || note.dataset.topic === topic) && matchesQuery);
       if (!note.hidden) count++;
     }
     document.querySelector('#result-count').textContent = `${count} ${count === 1 ? 'note' : 'notes'}${topic === 'All' ? ' across all topics' : ' in ' + topic.toLowerCase()}`;

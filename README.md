@@ -21,6 +21,8 @@ Practical security notes covering Microsoft identity, endpoint protection, and A
 | Operations | [Migrating Microsoft Graph security alerts to v2](Graph_Alerts_V2_Migration.html) |
 | Operations | [Moving Sentinel operations to the Defender portal](Sentinel_Defender_Portal_Transition.html) |
 | Azure | [Targeted malware scans in Defender for Storage](Defender_Storage_Targeted_Scanning.html) |
+| Identity | [Reviewing automatic Defender for Identity sensor activation](Defender_Identity_Automatic_Sensor_Checklist.html) |
+| Endpoint | [Piloting the Intune STIG audit baseline](Intune_STIG_Audit_Baseline.html) |
 
 ## About these notes
 
@@ -45,6 +47,8 @@ Actual outputs and populated worksheets can contain operational or identifying d
 ## Microsoft update notes
 
 Three notes translate recent Microsoft changes into practical checks: Graph alert API migration, the Sentinel portal transition, and targeted storage malware scans. Reviewed on 3 November 2026, with links to Microsoft documentation in each article.
+
+The 4 November 2026 review added a Defender for Identity automatic-activation checklist and an Intune STIG audit guide, and updated the Defender for Linux runbook for generally available antivirus audit mode.
 
 ## Site structure
 
