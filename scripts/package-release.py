@@ -8,7 +8,7 @@ import zipfile
 
 DOCS = ['README.md', 'USAGE.md', 'DEFENDER_STATUS.md', 'ANALYZER.md',
         'MICROSOFT_SCOPE.md', 'ENDPOINT_BEHAVIOR.md', 'REPORT_SCHEMA.md',
-        'CHANGELOG.md', 'LICENSE']
+        'CHANGELOG.md', 'MDE_CONNECTIVITY.md', 'LICENSE']
 TARGETS = ['x86_64-pc-windows-msvc', 'x86_64-unknown-linux-gnu',
            'x86_64-apple-darwin', 'aarch64-apple-darwin']
 

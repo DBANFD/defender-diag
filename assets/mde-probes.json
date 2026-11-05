@@ -1,0 +1,281 @@
+[
+  {
+    "region": "eu",
+    "model": "standard",
+    "hostname": "winatp-gw-weu.microsoft.com",
+    "path": "/test",
+    "purpose": "EDR command and control diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "standard",
+    "hostname": "winatp-gw-neu.microsoft.com",
+    "path": "/test",
+    "purpose": "EDR command and control diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "standard",
+    "hostname": "eu-v20.events.data.microsoft.com",
+    "path": "/ping",
+    "purpose": "EDR telemetry diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "standard",
+    "hostname": "cdn.x.cp.wd.microsoft.com",
+    "path": "/ping",
+    "purpose": "Cloud protection diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "standard",
+    "hostname": "x.cp.wd.microsoft.com",
+    "path": "/api/report",
+    "purpose": "Cloud protection diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "streamlined",
+    "hostname": "edr-weu.eu.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "streamlined",
+    "hostname": "edr-neu.eu.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "streamlined",
+    "hostname": "edr-weu3.eu.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "streamlined",
+    "hostname": "edr-neu3.eu.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "streamlined",
+    "hostname": "mdav.eu.endpoint.security.microsoft.com",
+    "path": "/mdav/wdcp.svc/heartbeat",
+    "purpose": "Consolidated antivirus cloud diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "eu",
+    "model": "streamlined",
+    "hostname": "eu-v20.events.endpoint.security.microsoft.com",
+    "path": "/ping",
+    "purpose": "Consolidated EDR telemetry diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "standard",
+    "hostname": "winatp-gw-cus.microsoft.com",
+    "path": "/test",
+    "purpose": "EDR command and control diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "standard",
+    "hostname": "winatp-gw-eus.microsoft.com",
+    "path": "/test",
+    "purpose": "EDR command and control diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "standard",
+    "hostname": "us-v20.events.data.microsoft.com",
+    "path": "/ping",
+    "purpose": "EDR telemetry diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "standard",
+    "hostname": "cdn.x.cp.wd.microsoft.com",
+    "path": "/ping",
+    "purpose": "Cloud protection diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "standard",
+    "hostname": "x.cp.wd.microsoft.com",
+    "path": "/api/report",
+    "purpose": "Cloud protection diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "streamlined",
+    "hostname": "edr-cus.us.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "streamlined",
+    "hostname": "edr-eus.us.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "streamlined",
+    "hostname": "edr-cus3.us.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "streamlined",
+    "hostname": "edr-eus3.us.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "streamlined",
+    "hostname": "mdav.us.endpoint.security.microsoft.com",
+    "path": "/mdav/wdcp.svc/heartbeat",
+    "purpose": "Consolidated antivirus cloud diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "us",
+    "model": "streamlined",
+    "hostname": "us-v20.events.endpoint.security.microsoft.com",
+    "path": "/ping",
+    "purpose": "Consolidated EDR telemetry diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "standard",
+    "hostname": "winatp-gw-uks.microsoft.com",
+    "path": "/test",
+    "purpose": "EDR command and control diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "standard",
+    "hostname": "winatp-gw-ukw.microsoft.com",
+    "path": "/test",
+    "purpose": "EDR command and control diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "standard",
+    "hostname": "uk-v20.events.data.microsoft.com",
+    "path": "/ping",
+    "purpose": "EDR telemetry diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "standard",
+    "hostname": "cdn.x.cp.wd.microsoft.com",
+    "path": "/ping",
+    "purpose": "Cloud protection diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "standard",
+    "hostname": "x.cp.wd.microsoft.com",
+    "path": "/api/report",
+    "purpose": "Cloud protection diagnostic",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/linux-support-connectivity",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "streamlined",
+    "hostname": "edr-uks.uk.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "streamlined",
+    "hostname": "edr-ukw.uk.endpoint.security.microsoft.com",
+    "path": "/edr/commands/test",
+    "purpose": "Consolidated EDR command and control diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "streamlined",
+    "hostname": "mdav.uk.endpoint.security.microsoft.com",
+    "path": "/mdav/wdcp.svc/heartbeat",
+    "purpose": "Consolidated antivirus cloud diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  },
+  {
+    "region": "uk",
+    "model": "streamlined",
+    "hostname": "uk-v20.events.endpoint.security.microsoft.com",
+    "path": "/ping",
+    "purpose": "Consolidated EDR telemetry diagnostic",
+    "source": "https://aka.ms/mdatpanalyzer | Tools/RegionsURLs.json | ScriptVer 15Jul2026 | ZIP SHA256 139dc66c7dbe52b04ee94ee3b61f5d531f8323c1bc09cd61413d7bdd9ed3c2e5",
+    "expected_status": 200
+  }
+]

@@ -44,3 +44,6 @@ Only response headers are read, not service response bodies. A status 200 is the
 - [Validate Antivirus cloud connectivity](https://learn.microsoft.com/en-us/defender-endpoint/configure-network-connections-microsoft-defender-antivirus): MpCmdRun -ValidateMapsConnection and why a generic HTTP success does not necessarily validate MAPS.
 
 Feed source URLs remain in technical provenance for reproducibility; product menus and help use neutral service-feed labels.
+
+## 0.7.0 curated connectivity comparison
+The new [MDE check](MDE_CONNECTIVITY.md) uses an independently assembled, sourced exact-host/path registry (`assets/mde-probes.json`). It supersedes historical-script paths for those exact hosts. These GET paths are also used by normal HTTPS probes unless `--generic-http` is selected. Raw DNS/TCP/TLS evidence remains unchanged. Failed address attempts now carry stage-specific next steps and live context when another IP worked in the same round.

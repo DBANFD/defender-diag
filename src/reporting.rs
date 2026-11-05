@@ -201,6 +201,10 @@ pub fn console(r: &Report) {
         );
     }
     for a in &r.attempts {
+        let alternative = crate::endpoints::alternate_address_note(a, &r.attempts);
+        if !alternative.is_empty() {
+            println!("  ADDRESS NOTE: {alternative}");
+        }
         println!(
             "  {}: {} | request {:?} {:?}",
             a.assessment, a.diagnostic_note, a.http_method, a.http_path

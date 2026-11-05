@@ -23,6 +23,23 @@ async fn execute() -> anyhow::Result<bool> {
     };
     let mut source_feed = None;
     let (hosts, options) = match command {
+        Command::MdeCheck { options } => {
+            let cancel = defender_diag::process::cancel_token();
+            let signal = cancel.clone();
+            let watcher = tokio::spawn(async move {
+                let _ = tokio::signal::ctrl_c().await;
+                signal.store(true, std::sync::atomic::Ordering::Relaxed);
+            });
+            let result =
+                defender_diag::mde_check::run(&options, cancel, |s| eprintln!("{s}")).await;
+            watcher.abort();
+            let report = result?;
+            defender_diag::mde_check::console(&report);
+            if let Some(path) = &options.output {
+                defender_diag::mde_check::export(&report, path)?;
+            }
+            return Ok(!report.cancelled && report.models.iter().all(|m| m.verdict == "responding"));
+        }
         Command::Defender { query } => {
             let cancel = defender_diag::process::cancel_token();
             let signal = cancel.clone();

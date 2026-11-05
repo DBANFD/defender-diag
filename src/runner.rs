@@ -111,6 +111,7 @@ pub async fn run_observed(
     } else {
         (None, Vec::new())
     };
+    warnings.push(crate::mde_check::COMPARE.into());
     warnings.push("Profiles contain examples only, not a complete service allowlist or proof of sensor health.".into());
     warnings.push("Native trust roots with rustls validation; OS revocation/AIA behavior is not reproduced. DNS cache may affect repeated results.".into());
     let mut report = Report {

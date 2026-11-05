@@ -1,4 +1,4 @@
-# Defender Diag v0.6.0
+# Defender Diag v0.7.0
 
 Portable terminal dashboard and CLI for Microsoft service connectivity, runtime MDE Client Analyzer package management, and local Windows Defender status.
 
@@ -14,6 +14,12 @@ Portable terminal dashboard and CLI for Microsoft service connectivity, runtime 
 Download the archive matching your CPU, extract it and run `defender-diag.exe` on Windows or `./defender-diag` from Terminal on Linux/macOS. Use `--help` for CLI commands. Rust is not required. Archives include usage documentation and the MIT license. GitHub's automatic source ZIP/tarballs contain source code, not compiled applications.
 
 Verify the archive against `SHA256SUMS.txt` using `Get-FileHash -Algorithm SHA256` on Windows, `sha256sum` on Linux, or `shasum -a 256` on macOS. Checksums detect mismatches; they are not a publisher signature. These builds are not publisher code-signed or Apple-notarized. OS download protections may prompt or block execution; source builds remain available.
+
+## New in 0.7.0
+
+- Dedicated Standard/Streamlined MDE diagnostic comparison, EU by default, with US/UK choices. Uses concrete GET paths, not generic root URLs.
+- Reports both samples separately, repeated-test intermittency and failed alternate addresses. A responding sample is not full readiness or onboarding-mode detection.
+- Clearer DNS/TCP/TLS/HTTP failure guidance and comparison with `mdatp connectivity test`. Raw errors and verification remain intact.
 
 ## Features
 
