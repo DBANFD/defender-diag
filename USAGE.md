@@ -4,7 +4,7 @@ A portable Rust terminal dashboard and CLI for direct DNS, TCP, and verified TLS
 
 **Status:** version 0.6.0. See the pull request and CI for current checks. Interactive keyboard navigation, Entra HTTPS and service feed import were exercised live. CI covers Windows, Linux, and macOS; see the repository Actions tab for current results. Cross-platform production qualification remains outstanding.
 
-See [COLLECTIONS.md](COLLECTIONS.md), [INTUNE.md](INTUNE.md), [ANALYZER.md](ANALYZER.md) and [MICROSOFT_SCOPE.md](MICROSOFT_SCOPE.md) for the Windows workflows and provider validation.
+See [Defender status](DEFENDER_STATUS.md) for local running mode and preference queries.
 
 ## Interactive terminal dashboard
 
@@ -117,4 +117,4 @@ See [ENDPOINT_BEHAVIOR.md](ENDPOINT_BEHAVIOR.md) for the script review, official
 
 Known wildcard-family apexes are excluded when importing feeds; concrete service names are required. An explicitly requested apex still records its raw DNS failure with contextual guidance. No undocumented DNS failures are silently labelled expected. Version 0.3.0 exports schema 2 with method, path and assessment fields; prior reports remain unchanged.
 
-Command-specific exit meanings: collection and Graph exit 0 means the workflow wrote its output, not that all collectors succeeded or the device is healthy. Inspect manifest results, cancelled, errors and coverage. Configuration/fatal output errors exit 2. Connectivity commands retain their existing transport exit codes.
+Defender queries: exit 0 means output was retrieved, not that protection is healthy. Missing module, access denial, cancellation and query errors exit 2. Use `defender running-mode` or `defender preferences`; see [Defender status](DEFENDER_STATUS.md).

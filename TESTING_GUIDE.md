@@ -60,4 +60,4 @@ Full JSON/CSV and summaries are still produced after a successful run completion
 - Total per-probe deadlines and fixed-duration scheduling.
 - Per-stage failure trends and consecutive-failure streaks.
 
-For packages, Windows collections, Firewall and Intune, see [ANALYZER.md](ANALYZER.md), [COLLECTIONS.md](COLLECTIONS.md) and [INTUNE.md](INTUNE.md). Tests use anonymous offline fixtures; live checks are operator-invoked and never part of cargo test.
+For Analyzer packages and local Defender queries, see [ANALYZER.md](ANALYZER.md) and [DEFENDER_STATUS.md](DEFENDER_STATUS.md). Tests use anonymous fixtures; live reads are operator-invoked.

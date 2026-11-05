@@ -11,9 +11,7 @@ Written in Rust. Current version: **0.6.0**.
 - Microsoft-only service feeds, sourced endpoint classification, regional comparisons and repeat-test presets.
 - JSON and CSV reports, plus an incremental JSONL journal for longer runs.
 - Runtime MDE Client Analyzer packages: standard/preview, offline import, versions and pinning.
-- Windows collection presets with scope previews, bounded evidence, cancellation, manifests and private support ZIPs.
-- Windows Firewall event logs and network/proxy evidence.
-- Local Intune evidence and optional read-only Graph enrichment with explicit coverage.
+- Local Windows Defender running mode and preference output, with searchable terminal display.
 
 ## Build and run
 
@@ -44,17 +42,15 @@ For command-line use, run these examples from the directory containing the Windo
 
 The examples contact the named public services. Custom targets belong in your local configuration.
 
-## Collection examples
+## Defender status and Analyzer packages
 
-~~~powershell
+```powershell
 .\defender-diag.exe analyzer packages download standard
-.\defender-diag.exe collect quick
-.\defender-diag.exe collect defender --hours 48 --run
-.\defender-diag.exe intune local --run
-.\defender-diag.exe intune coverage --beta
-~~~
+.\defender-diag.exe defender running-mode
+.\defender-diag.exe defender preferences
+```
 
-Collection commands show scope; without --run they only preview. Use the dashboard for package selection/pinning, preset review, Intune investigation. Raw bundles stay local and private. Shareable structural summaries are separate; arbitrary diagnostic content cannot be guaranteed anonymous automatically.
+Open **Defender status** in the dashboard to choose AMRunningMode or Get-MpPreference. Queries are local and read-only, with scrolling, search and cancellation. No cloud login or automatic evidence files. See [Defender status](DEFENDER_STATUS.md) for prerequisites and limitations.
 
 ## Reading the results
 
@@ -72,8 +68,7 @@ Connections are direct; the tool does not reproduce the sensor's proxy context. 
 | [Client Analyzer](ANALYZER.md) | Importing reports and running a separately supplied Windows package |
 | [Report schema](REPORT_SCHEMA.md) | JSON, CSV, and Analyzer output fields |
 | [Microsoft scope](MICROSOFT_SCOPE.md) | Provider enforcement, endpoint registry and dependencies |
-| [Collections and Firewall](COLLECTIONS.md) | Exact presets, limits, privacy and Firewall event coverage |
-| [Intune investigation](INTUNE.md) | Local evidence, consent, identity resolution and API coverage |
+| [Defender status](DEFENDER_STATUS.md) | Local running mode and preferences |
 | [Changelog](CHANGELOG.md) | Changes by version |
 
 ## Development

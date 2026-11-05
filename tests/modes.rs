@@ -143,17 +143,11 @@ async fn tcp_mode_does_not_attempt_tls() {
 }
 
 #[test]
-fn firewall_rule_feature_is_removed_but_events_remain() {
-    use defender_diag::collection::{Options, Preset, plan};
-    assert!(Cli::try_parse_from(["d", "firewall", "snapshot.json"]).is_err());
-    for preset in [Preset::Firewall, Preset::Comprehensive] {
-        let p = plan(&Options {
-            preset,
-            ..Options::default()
-        })
-        .unwrap();
-        assert!(!p.collectors.iter().any(|c| c == "firewall"));
-        assert!(p.collectors.iter().any(|c| c == "events-firewall"));
-        assert!(p.collectors.iter().any(|c| c == "network"));
+fn removed_investigations_are_not_commands() {
+    for command in ["intune", "collect", "firewall"] {
+        assert!(Cli::try_parse_from(["d", command]).is_err());
+    }
+    for query in ["running-mode", "preferences"] {
+        assert!(Cli::try_parse_from(["d", "defender", query]).is_ok());
     }
 }

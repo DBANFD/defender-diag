@@ -103,7 +103,7 @@ impl App {
     }
     fn count(&self) -> usize {
         match self.page {
-            Page::Home => 11,
+            Page::Home => 10,
             Page::AnalyzerMenu => 4,
             Page::AnalyzerResults => self.analyzer_rows().len(),
             Page::Feeds => self.feeds.len(),
@@ -428,19 +428,18 @@ impl App {
             }
             KeyCode::Enter => match self.page {
                 Page::Home => match self.cursor {
-                    9 => {
+                    8 => {
                         self.feed = None;
                         self.set_hosts(vec![
                             "management.azure.com".into(),
                             "portal.azure.com".into(),
                         ]);
                     }
-                    10 => {
+                    9 => {
                         self.feed = None;
                         self.set_hosts(vec!["enterpriseenrollment.manage.microsoft.com".into()]);
                     }
-                    7 => self.workbench = Some(crate::workbench::Section::Collections),
-                    8 => self.workbench = Some(crate::workbench::Section::Intune),
+                    7 => self.workbench = Some(crate::workbench::Section::Defender),
                     0 | 1 => {
                         self.filter = if self.cursor == 0 {
                             "msdefender".into()
@@ -633,8 +632,7 @@ fn draw(f: &mut Frame, a: &App) {
                 "Custom Microsoft service hostname".into(),
                 "MDE Client Analyzer — run / import / view findings".into(),
                 "Regional comparison — EDR regions + MDAV + control hosts".into(),
-                "Windows evidence collections — review scope / run / cancel".into(),
-                "Intune policy investigation — local / optional Graph".into(),
+                "Defender status — AMRunningMode / Get-MpPreference".into(),
                 "Microsoft Azure — management / portal sample targets".into(),
                 "Microsoft Intune — enrollment sample target".into(),
             ],
@@ -1128,6 +1126,33 @@ mod tests {
         assert!(text.contains("ANALYZER EVIDENCE"));
         assert!(text.contains("SYNTH-001"));
         assert!(!text.contains("DIRECT CONNECTIONS"));
+    }
+    #[test]
+    fn defender_home_entry_and_remaining_targets() {
+        let mut a = App::new();
+        assert_eq!(a.count(), 10);
+        let mut t = ratatui::Terminal::new(ratatui::backend::TestBackend::new(140, 40)).unwrap();
+        t.draw(|f| draw(f, &a)).unwrap();
+        let text: String = t
+            .backend()
+            .buffer()
+            .content
+            .iter()
+            .map(|c| c.symbol())
+            .collect();
+        assert!(text.contains("Defender status"));
+        assert!(!text.contains("Intune policy investigation"));
+        assert!(!text.contains("Windows evidence collections"));
+        a.cursor = 7;
+        a.key(KeyCode::Enter);
+        assert!(matches!(
+            a.workbench,
+            Some(crate::workbench::Section::Defender)
+        ));
+        a.workbench = None;
+        a.cursor = 8;
+        a.key(KeyCode::Enter);
+        assert!(a.hosts.contains(&"management.azure.com".into()));
     }
     #[test]
     fn selection_settings_and_rendering() {

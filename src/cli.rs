@@ -13,15 +13,10 @@ pub struct Cli {
 }
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Optional authenticated Intune enrichment; public-client device login, read only.
-    Intune {
-        #[command(subcommand)]
-        action: IntuneAction,
-    },
-    /// Preview or run a bounded, read-only Windows evidence collection.
-    Collect {
-        #[command(flatten)]
-        options: crate::collection::Options,
+    /// Display local Defender running mode or preferences (Windows only, read only).
+    Defender {
+        #[arg(value_enum, default_value = "running-mode")]
+        query: crate::defender::Query,
     },
     /// Run a selected Windows Analyzer package or import its structured results.
     Analyzer {
@@ -57,23 +52,6 @@ pub enum Command {
         tenant_host: Option<String>,
         #[arg(long)]
         config: Option<PathBuf>,
-    },
-}
-#[derive(Subcommand, Debug)]
-pub enum IntuneAction {
-    /// Local evidence, without cloud authentication. Use --run after reviewing scope.
-    Local {
-        #[command(flatten)]
-        options: crate::collection::Options,
-    },
-    /// Authenticate only on explicit invocation. Requires operator's public app ID.
-    Cloud {
-        #[command(flatten)]
-        options: crate::graph::Options,
-    },
-    Coverage {
-        #[arg(long)]
-        beta: bool,
     },
 }
 #[derive(Subcommand, Debug)]

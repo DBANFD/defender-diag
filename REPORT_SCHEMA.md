@@ -49,6 +49,5 @@ Optional CLI --journal / automatic UI results/attempts-*.jsonl writes one envelo
 Connectivity schema 2 and Analyzer import schema 1 remain compatible. Feed snapshots add classification, a hostname-to-purpose/source map.
 
 - Package metadata schema 1: id (channel-SHA256), channel, source, redirects, acquired_at, sha256, optional script_version, signatures. Selection records are append-only {id,pinned}. Hashes are content identity, not publisher authentication.
-- Collection manifest schema 1: tool_version, started_at/completed_at, cancelled, plan, results. Results contain collector/version, timestamps, status, error and files [{path,bytes,sha256}]. Status: ok, partial, unavailable_or_failed, size_limit, cancelled. None is a health verdict.
-- Graph schema 1: source, identity (three distinct IDs), device, coverage, assignments_and_policy_inventory, optional assignment_filter_definitions, reported_status, locally_observed_effective_values=null, errors, timestamps, cancelled. Graph manifest schema 1 hashes private output files.
-- Shareable summary schema 1: structural collector/coverage results only; raw values/identifiers/arbitrary error text are excluded. Raw bundles/manifests remain private.
+
+Defender status is display-only command output, not a connectivity report schema. It includes command, query time and pretty-printed values; no automatic file export.
