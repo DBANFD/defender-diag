@@ -147,7 +147,7 @@ fn removed_investigations_are_not_commands() {
     for command in ["intune", "collect", "firewall"] {
         assert!(Cli::try_parse_from(["d", command]).is_err());
     }
-    for query in ["running-mode", "preferences"] {
+    for query in ["computer-status", "preferences"] {
         assert!(Cli::try_parse_from(["d", "defender", query]).is_ok());
     }
 }

@@ -117,4 +117,4 @@ See [ENDPOINT_BEHAVIOR.md](ENDPOINT_BEHAVIOR.md) for the script review, official
 
 Known wildcard-family apexes are excluded when importing feeds; concrete service names are required. An explicitly requested apex still records its raw DNS failure with contextual guidance. No undocumented DNS failures are silently labelled expected. Version 0.3.0 exports schema 2 with method, path and assessment fields; prior reports remain unchanged.
 
-Defender queries: exit 0 means output was retrieved, not that protection is healthy. Missing module, access denial, cancellation and query errors exit 2. Use `defender running-mode` or `defender preferences`; see [Defender status](DEFENDER_STATUS.md).
+Defender queries: exit 0 means output was retrieved, not that protection is healthy. Missing module, access denial, cancellation and query errors exit 2. Use `defender computer-status` or `defender preferences`; see [Defender status](DEFENDER_STATUS.md).

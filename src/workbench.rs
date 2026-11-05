@@ -52,7 +52,7 @@ impl State {
     fn rows(&self) -> Vec<String> {
         match self.page {
             Page::Menu => [
-                "AMRunningMode (Get-MpComputerStatus)",
+                "Get-MpComputerStatus (all status fields)",
                 "Get-MpPreference (all returned preferences)",
             ]
             .iter()
@@ -208,7 +208,7 @@ pub async fn run(section: Section) -> Result<()> {
             KeyCode::Enter => match s.page {
                 Page::Menu => {
                     let query = if s.cursor == 0 {
-                        defender::Query::RunningMode
+                        defender::Query::ComputerStatus
                     } else {
                         defender::Query::Preferences
                     };
@@ -282,7 +282,7 @@ mod tests {
     fn defender_menu() {
         let s = State::new(Section::Defender);
         assert_eq!(s.rows().len(), 2);
-        assert!(s.rows()[0].contains("AMRunningMode"));
+        assert!(s.rows()[0].contains("Get-MpComputerStatus"));
         assert!(s.rows()[1].contains("Get-MpPreference"));
     }
 }

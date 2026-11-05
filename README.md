@@ -46,11 +46,11 @@ The examples contact the named public services. Custom targets belong in your lo
 
 ```powershell
 .\defender-diag.exe analyzer packages download standard
-.\defender-diag.exe defender running-mode
+.\defender-diag.exe defender computer-status
 .\defender-diag.exe defender preferences
 ```
 
-Open **Defender status** in the dashboard to choose AMRunningMode or Get-MpPreference. Queries are local and read-only, with scrolling, search and cancellation. No cloud login or automatic evidence files. See [Defender status](DEFENDER_STATUS.md) for prerequisites and limitations.
+Open **Defender status** in the dashboard to choose Get-MpComputerStatus or Get-MpPreference. Queries are local and read-only, with scrolling, search and cancellation. No cloud login or automatic evidence files. See [Defender status](DEFENDER_STATUS.md) for prerequisites and limitations.
 
 ## Reading the results
 

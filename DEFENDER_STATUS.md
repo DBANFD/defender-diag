@@ -1,14 +1,14 @@
 # Local Defender status
 
-Dashboard: **Defender status** > **AMRunningMode** or **Get-MpPreference** > Enter.
+Dashboard: **Defender status** > **Get-MpComputerStatus** or **Get-MpPreference** > Enter.
 Use arrows or Page Up/Down to scroll, `/` to filter lines, and Esc to return. Select a query again for a fresh snapshot. Esc during a query cancels it.
 
 ```powershell
-defender-diag defender running-mode
+defender-diag defender computer-status
 defender-diag defender preferences
 ```
 
-AMRunningMode is obtained with `Get-MpComputerStatus | Select-Object AMRunningMode`; Get-AMRunningMode is not a standard Defender cmdlet. Preferences use `Get-MpPreference`, retaining all returned preference fields and arrays while omitting CIM transport metadata. Values are displayed as indented JSON with the command and query time. Missing or empty running mode is reported as unavailable rather than guessed.
+Status uses the full `Get-MpComputerStatus` output, including running mode, protection state, signature versions and scan information. Preferences use `Get-MpPreference`. Both retain all returned data properties and arrays, omitting only CIM transport metadata. Values are displayed as indented JSON with the command and query time. Empty responses are reported as unavailable rather than guessed. The previous `running-mode` CLI name remains an alias for the full computer-status query.
 
 Windows only, using Windows PowerShell and the installed Defender module. Queries are read-only: no policy changes, cloud authentication, collection bundles, automatic output files or uploads. Run as administrator if the OS denies access; the tool does not elevate itself. Linux/macOS retain connectivity and Analyzer import support and report these queries as Windows-only.
 

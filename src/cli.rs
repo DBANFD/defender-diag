@@ -15,7 +15,7 @@ pub struct Cli {
 pub enum Command {
     /// Display local Defender running mode or preferences (Windows only, read only).
     Defender {
-        #[arg(value_enum, default_value = "running-mode")]
+        #[arg(value_enum, default_value = "computer-status")]
         query: crate::defender::Query,
     },
     /// Run a selected Windows Analyzer package or import its structured results.

@@ -632,7 +632,7 @@ fn draw(f: &mut Frame, a: &App) {
                 "Custom Microsoft service hostname".into(),
                 "MDE Client Analyzer — run / import / view findings".into(),
                 "Regional comparison — EDR regions + MDAV + control hosts".into(),
-                "Defender status — AMRunningMode / Get-MpPreference".into(),
+                "Defender status — Get-MpComputerStatus / Get-MpPreference".into(),
                 "Microsoft Azure — management / portal sample targets".into(),
                 "Microsoft Intune — enrollment sample target".into(),
             ],

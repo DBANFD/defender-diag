@@ -4,7 +4,7 @@
 
 - Microsoft-only feeds and custom-target classification, preserving Microsoft regions/clouds and documented dependencies.
 - Runtime standard/preview Analyzer download/import, version selection/pinning and redirect/signature validation. Public build-time embedding removed.
-- Local Defender status page and CLI for AMRunningMode and Get-MpPreference, with bounded cancellable queries.
+- Local Defender status page and CLI for Get-MpComputerStatus and Get-MpPreference, with bounded cancellable queries.
 - Removed Intune policy investigation, Graph authentication, Windows evidence presets and effective Firewall rule features before release. Microsoft service connectivity categories remain.
 - Anonymous offline query/process fixtures; full elevated Analyzer pilot remains pending.
 

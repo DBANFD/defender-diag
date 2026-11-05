@@ -3,14 +3,15 @@ use crate::process::Cancel;
 use anyhow::Result;
 #[derive(Clone, Copy, Debug, clap::ValueEnum)]
 pub enum Query {
-    RunningMode,
+    #[value(alias = "running-mode")]
+    ComputerStatus,
     Preferences,
 }
 impl Query {
     pub fn command(self) -> &'static str {
         match self {
-            Self::RunningMode => {
-                "Get-MpComputerStatus -ErrorAction Stop | Select-Object AMRunningMode"
+            Self::ComputerStatus => {
+                "Get-MpComputerStatus -ErrorAction Stop | Select-Object * -ExcludeProperty CimClass,CimInstanceProperties,CimSystemProperties,PSComputerName"
             }
             Self::Preferences => {
                 "Get-MpPreference -ErrorAction Stop | Select-Object * -ExcludeProperty CimClass,CimInstanceProperties,CimSystemProperties,PSComputerName"
@@ -30,18 +31,9 @@ pub fn render(query: Query, bytes: &[u8]) -> Result<String> {
         .trim();
     let value: serde_json::Value = serde_json::from_str(text)?;
     anyhow::ensure!(
-        value.is_object(),
+        value.as_object().is_some_and(|o| !o.is_empty()),
         "Defender returned no data or an unexpected response"
     );
-    if matches!(query, Query::RunningMode) {
-        anyhow::ensure!(
-            value
-                .get("AMRunningMode")
-                .and_then(|v| v.as_str())
-                .is_some_and(|s| !s.is_empty()),
-            "AMRunningMode is unavailable on this device"
-        );
-    }
     Ok(crate::analyzer::clean(&format!(
         "Command: {}\nRead at: {}\n\n{}",
         query.command(),
@@ -76,14 +68,14 @@ pub async fn run(_query: Query, _cancel: Cancel) -> Result<String> {
 mod tests {
     use super::*;
     #[test]
-    fn mode_and_preferences_preserve_values() {
+    fn status_and_preferences_preserve_values() {
         assert!(
-            render(Query::RunningMode, br#"{"AMRunningMode":"Passive"}"#)
+            render(Query::ComputerStatus, br#"{"AMRunningMode":"Passive","AntivirusEnabled":true,"AMProductVersion":"fixture-version"}"#)
                 .unwrap()
                 .contains("Passive")
         );
         for bytes in [b"null".as_slice(), b"{}", b"invalid"] {
-            assert!(render(Query::RunningMode, bytes).is_err());
+            assert!(render(Query::ComputerStatus, bytes).is_err());
         }
         let text = render(
             Query::Preferences,
@@ -96,9 +88,9 @@ mod tests {
     #[cfg(windows)]
     #[tokio::test]
     async fn mocked_powershell_queries() {
-        for query in [Query::RunningMode, Query::Preferences] {
+        for query in [Query::ComputerStatus, Query::Preferences] {
             let mock = format!(
-                "function Get-MpComputerStatus {{ [pscustomobject]@{{AMRunningMode='Normal'}} }}; function Get-MpPreference {{ [pscustomobject]@{{DisableRealtimeMonitoring=$false; ExclusionPath=@('C:\\Fixture')}} }}; & {{ {} }}",
+                "function Get-MpComputerStatus {{ [pscustomobject]@{{AMRunningMode='Normal'; AntivirusEnabled=$true; AMProductVersion='fixture-version'}} }}; function Get-MpPreference {{ [pscustomobject]@{{DisableRealtimeMonitoring=$false; ExclusionPath=@('C:\\Fixture')}} }}; & {{ {} }}",
                 script(query)
             );
             let mut command = tokio::process::Command::new(crate::analyzer::powershell().unwrap());
@@ -117,7 +109,11 @@ mod tests {
             )
             .await
             .unwrap();
-            assert!(render(query, &bytes).is_ok());
+            let text = render(query, &bytes).unwrap();
+            if matches!(query, Query::ComputerStatus) {
+                assert!(text.contains("AntivirusEnabled"));
+                assert!(text.contains("fixture-version"));
+            }
         }
     }
 }
