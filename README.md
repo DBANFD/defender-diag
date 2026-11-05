@@ -11,7 +11,13 @@ Written in Rust. Current version: **0.6.0**.
 - Microsoft-only service feeds, sourced endpoint classification, regional comparisons and repeat-test presets.
 - JSON and CSV reports, plus an incremental JSONL journal for longer runs.
 - Runtime MDE Client Analyzer packages: standard/preview, offline import, versions and pinning.
-- Local Windows Defender running mode and preference output, with searchable terminal display.
+- Full local Windows Defender computer-status and preference output, with searchable terminal display.
+
+## Download
+
+Get the portable Windows, Linux or macOS application from [GitHub Releases](https://github.com/DBANFD/defender-diag/releases/latest). Choose the asset for your CPU and extract it. Windows uses the `.exe`; Linux/macOS use `./defender-diag` in Terminal. Rust is only needed when building from source.
+
+Windows x64, Linux x64 (glibc 2.35+), macOS Intel and Apple Silicon archives include documentation and the license. Verify downloads against the release SHA256SUMS.txt. Builds are unsigned and macOS builds are not notarized. See the release notes for tested platforms and limitations. Microsoft Analyzer packages are acquired separately and are never included.
 
 ## Build and run
 
