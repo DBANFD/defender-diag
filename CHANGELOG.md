@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0
+
+- Microsoft-only feeds and custom-target classification, preserving Microsoft regions/clouds and documented dependencies.
+- Runtime standard/preview Analyzer download/import, version selection/pinning and redirect/signature validation. Public build-time embedding removed.
+- Read-only Windows collection presets with scope review, time/size limits, cancellation, per-collector results, manifests and private support ZIPs.
+- ActiveStore Firewall rules and filters, resultant profiles, separate local configuration and searchable JSON/CSV export.
+- Local Intune evidence plus optional Graph login, exact device identity, policy/assignment inventory, beta families and bounded compliance reporting. Explicit partial-coverage table.
+- Extended anonymous offline fixtures; live Graph and elevated Analyzer pilots remain pending.
+
+
 ## 0.5.0 - 2026-11-04
 
 - Readable feed categories, scope descriptions and friendly-name search.
@@ -29,7 +39,7 @@
 
 - Added an interactive terminal dashboard when launched without arguments, with bordered panels, live per-IP rows, colored outcomes and latency graph.
 - Added keyboard target selection, test settings, DNS/TCP/TLS/HTTPS modes, automatic JSON/CSV saves and repeatable runs.
-- Embedded 231 Palo Alto URL-feed links from the 2026-11-04 catalogue. Added live verified-HTTPS feed download, filtering, exclusion review and concrete-host selection.
+- Added the initial feed catalogue (superseded by Microsoft-only scope in 0.6.0). Added live verified-HTTPS feed download, filtering, exclusion review and concrete-host selection.
 - Added feed provenance to JSON: source URL, UTC retrieval time, SHA-256, eligible inventory and exclusions.
 - Preserved existing CLI commands; added ui, feeds, edl and --mode.
 - Kept wildcard and path exclusions explicit; HTTP 4xx/5xx remain transport successes with amber application-status indicators.

@@ -44,3 +44,12 @@ Strings are plain text with common credential patterns redacted. Findings retain
 
 ## Incremental journal schema 1
 Optional CLI --journal / automatic UI results/attempts-*.jsonl writes one envelope per line: journal_schema=1, kind=start|dns|attempt|end, data=object. Start includes timestamp, tool version, hosts, effective mode/count/interval/stage timeout/concurrency. DNS and attempt payloads use the existing types above. End records completion time and attempt count. Missing end is an incomplete run; ignore an incomplete trailing line after a crash. No final success percentage is inferred from an unfinished journal. Files use create-new and flush every record.
+
+## Additional schemas (0.6.0)
+Connectivity schema 2 and Analyzer import schema 1 remain compatible. Feed snapshots add classification, a hostname-to-purpose/source map.
+
+- Package metadata schema 1: id (channel-SHA256), channel, source, redirects, acquired_at, sha256, optional script_version, signatures. Selection records are append-only {id,pinned}. Hashes are content identity, not publisher authentication.
+- Collection manifest schema 1: tool_version, started_at/completed_at, cancelled, plan, results. Results contain collector/version, timestamps, status, error and files [{path,bytes,sha256}]. Status: ok, partial, unavailable_or_failed, size_limit, cancelled. None is a health verdict.
+- Firewall schema 1: store=ActiveStore, rules and associated filters, profiles, networkProfiles, localConfiguredRules (PersistentStore), errors. Missing source stays unknown.
+- Graph schema 1: source, identity (three distinct IDs), device, coverage, assignments_and_policy_inventory, optional assignment_filter_definitions, reported_status, locally_observed_effective_values=null, errors, timestamps, cancelled. Graph manifest schema 1 hashes private output files.
+- Shareable summary schema 1: structural collector/coverage results only; raw values/identifiers/arbitrary error text are excluded. Raw bundles/manifests remain private.

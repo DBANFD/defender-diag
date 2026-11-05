@@ -2,20 +2,22 @@
 
 A portable Rust terminal dashboard and CLI for direct DNS, TCP, and verified TLS troubleshooting. Optional service-aware HTTPS probes distinguish HTTP responses (including 403/404/500) from transport failures.
 
-**Status:** version 0.5.0. Windows formatting, Clippy, all 32 tests and release build passed. Interactive keyboard navigation, Entra HTTPS and service feed import were exercised live. CI covers Windows, Linux, and macOS; see the repository Actions tab for current results. Cross-platform production qualification remains outstanding.
+**Status:** version 0.6.0. See the pull request and CI for current checks. Interactive keyboard navigation, Entra HTTPS and service feed import were exercised live. CI covers Windows, Linux, and macOS; see the repository Actions tab for current results. Cross-platform production qualification remains outstanding.
+
+See [COLLECTIONS.md](COLLECTIONS.md), [INTUNE.md](INTUNE.md), [ANALYZER.md](ANALYZER.md) and [MICROSOFT_SCOPE.md](MICROSOFT_SCOPE.md) for the Windows workflows and provider validation.
 
 ## Interactive terminal dashboard
 
 Run defender-diag.exe without arguments (or with ui). It opens a full-screen keyboard-driven dashboard. The EXE contains the menu, graphics and feed catalogue; no sidecar files or Rust installation are needed. A modern terminal with Unicode support is recommended; maximize it (120 columns or wider) for long hostnames and certificate details.
 
-1. Choose Defender feeds, all service URL feeds, example targets, Entra, or a custom/SentinelOne hostname.
+1. Choose Defender feeds, all Microsoft service URL feeds, example targets, Entra, or a custom Microsoft service hostname.
 2. For feeds, type to filter by provider, region or service (e.g. msdefender/eu). Arrows select a feed; Enter downloads current contents over verified direct HTTPS.
 3. Space toggles hosts; a selects all/none; x shows excluded entries; c adds a concrete hostname. Enter opens test settings.
 4. Choose DNS only, DNS+TCP, DNS+TCP+verified TLS, or HTTPS probes. Configure rounds, delay, timeout, port and concurrency; select START.
 5. Follow live rows and the latency graph. Green means transport success, red means transport failure, cyan KNOWN means a generic response matching a historical script baseline, and amber means an HTTP response requiring review. Press d for request and interpretation details. Arrows inspect attempts and per-host latency statistics.
 6. Completed runs automatically save JSON and CSV to ./results in the working directory. Press s to save another copy, n for a new test, or q to quit. Esc cancels a running test; cancelled-run rows remain visible and completed evidence is retained in the incremental JSONL journal.
 
-The catalogue embeds 231 URL-feed links captured on 2026-11-04 from the linked service catalogue. Feed contents are downloaded fresh, with no silent cached fallback. The catalogue itself is a dated snapshot; use the CLI edl command for a newer published feed URL until the next catalogue update. IP feeds are intentionally excluded because TLS requires a concrete hostname.
+The catalogue embeds 155 Microsoft URL-feed links captured on 2026-11-04 from the linked service catalogue. Feed contents are downloaded fresh, with no silent cached fallback. The catalogue itself is a dated snapshot; use the CLI edl command for a newer published feed URL until the next catalogue update. IP feeds are intentionally excluded because TLS requires a concrete hostname.
 
 ## Category descriptions and longer testing
 
@@ -52,12 +54,11 @@ defender-diag test login.microsoftonline.com --port 443 --output results.json
 defender-diag test login.microsoftonline.com --https --csv attempts.csv
 defender-diag profile mde --count 10
 defender-diag profile entra
-defender-diag profile sentinelone --tenant-host tenant.example.com
 defender-diag profile custom --config examples/endpoints.json
 defender-diag profile mde --config region-specific.json --count 10
 ~~~
 
-Use your actual SentinelOne management hostname. A configuration file replaces the example list; --tenant-host appends a concrete host. Files use {"endpoints":["host.example"]}. Maximum 256 hosts; duplicates are removed. Only ASCII DNS hostnames are accepted (use punycode for IDNs); URLs, credentials, IP literals, wildcards and paths are rejected. --resolve-ip bypasses DNS and records that fact while preserving hostname validation, SNI and HTTP Host.
+Use a documented Microsoft service hostname. Manual hosts must match the sourced Microsoft classification registry. A configuration file replaces the example list; --tenant-host appends a concrete host. Files use {"endpoints":["login.microsoftonline.com"]}. Maximum 256 hosts; duplicates are removed. Only ASCII DNS hostnames are accepted (use punycode for IDNs); URLs, credentials, IP literals, wildcards and paths are rejected. --resolve-ip bypasses DNS and records that fact while preserving hostname validation, SNI and HTTP Host.
 
 Options:
 - --count 1..1000 (default 1); --interval delay between completed rounds (default 1s).
@@ -86,7 +87,7 @@ A 403/404 proves an HTTPS response was received on that connection; it does not 
 
 ## Profiles and endpoint sources
 
-Built-in mde contains only edr-weu.eu.endpoint.security.microsoft.com; entra contains only login.microsoftonline.com. SentinelOne and custom require supplied hosts. These are EXAMPLES, not comprehensive allowlists. Keep region/tenant-specific endpoint files under your own change control.
+Built-in mde contains only edr-weu.eu.endpoint.security.microsoft.com; entra contains only login.microsoftonline.com. Custom requires classified Microsoft service hosts. These are EXAMPLES, not comprehensive allowlists. Keep region/tenant-specific endpoint files under your own change control.
 
 Microsoft's official [connectivity verification guidance](https://learn.microsoft.com/en-us/defender-endpoint/verify-connectivity) explains that endpoint selection depends on onboarding geography and standard/streamlined connectivity, and provides the Defender Client Analyzer workflow. Use that analyzer for sensor-context checks.
 
@@ -115,3 +116,5 @@ CI defines stable Windows, Ubuntu and macOS builds. A passing CI run and a real 
 See [ENDPOINT_BEHAVIOR.md](ENDPOINT_BEHAVIOR.md) for the script review, official sources and probe-path decisions. 55 exact-root HTTPS response rules are embedded from the existing script as historical/unverified context, not Microsoft service-health guarantees. They never override failed DNS, TCP or TLS stages. Generic root expectations do not apply to a different test path. HTTP 5xx remains review-worthy even if an old script accepted it.
 
 Known wildcard-family apexes are excluded when importing feeds; concrete service names are required. An explicitly requested apex still records its raw DNS failure with contextual guidance. No undocumented DNS failures are silently labelled expected. Version 0.3.0 exports schema 2 with method, path and assessment fields; prior reports remain unchanged.
+
+Command-specific exit meanings: collection and Graph exit 0 means the workflow wrote its output, not that all collectors succeeded or the device is healthy. Inspect manifest results, cancelled, errors and coverage. Configuration/fatal output errors exit 2. Connectivity commands retain their existing transport exit codes.

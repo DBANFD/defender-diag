@@ -8,7 +8,7 @@ fn exports_schema_and_preserves_existing_evidence() {
     let json = dir.path().join("report.json");
     let csv = dir.path().join("attempts.csv");
     let mut a = Attempt::new(
-        "example.com".into(),
+        "login.microsoftonline.com".into(),
         Some("127.0.0.1".parse().unwrap()),
         443,
         1,
@@ -46,14 +46,18 @@ fn custom_config_is_validated_and_deduplicated() {
     use defender_diag::cli::{Profile, targets};
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("targets.json");
-    std::fs::write(&path, r#"{"endpoints":["EXAMPLE.com","example.com"]}"#).unwrap();
+    std::fs::write(
+        &path,
+        r#"{"endpoints":["LOGIN.microsoftonline.com","login.microsoftonline.com"]}"#,
+    )
+    .unwrap();
     assert_eq!(
         targets(Profile::Custom, None, Some(path.clone())).unwrap(),
-        vec!["example.com"]
+        vec!["login.microsoftonline.com"]
     );
     std::fs::write(
         &path,
-        r#"{"endpoints":["https://user:secret@example.com"]}"#,
+        r#"{"endpoints":["https://user:secret@login.microsoftonline.com"]}"#,
     )
     .unwrap();
     assert!(targets(Profile::Custom, None, Some(path)).is_err());

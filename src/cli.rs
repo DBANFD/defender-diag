@@ -13,7 +13,31 @@ pub struct Cli {
 }
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Run the bundled Windows analyzer or import its structured results.
+    /// Optional authenticated Intune enrichment; public-client device login, read only.
+    Intune {
+        #[command(subcommand)]
+        action: IntuneAction,
+    },
+    /// Preview or run a bounded, read-only Windows evidence collection.
+    Collect {
+        #[command(flatten)]
+        options: crate::collection::Options,
+    },
+    /// Search/export an ActiveStore snapshot from a Firewall collection.
+    Firewall {
+        path: PathBuf,
+        #[arg(long, default_value = "")]
+        search: String,
+        #[arg(long)]
+        direction: Option<String>,
+        #[arg(long)]
+        action: Option<String>,
+        #[arg(long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        csv: Option<PathBuf>,
+    },
+    /// Run a selected Windows Analyzer package or import its structured results.
     Analyzer {
         #[command(subcommand)]
         action: AnalyzerCommand,
@@ -50,7 +74,29 @@ pub enum Command {
     },
 }
 #[derive(Subcommand, Debug)]
+pub enum IntuneAction {
+    /// Local evidence, without cloud authentication. Use --run after reviewing scope.
+    Local {
+        #[command(flatten)]
+        options: crate::collection::Options,
+    },
+    /// Authenticate only on explicit invocation. Requires operator's public app ID.
+    Cloud {
+        #[command(flatten)]
+        options: crate::graph::Options,
+    },
+    Coverage {
+        #[arg(long)]
+        beta: bool,
+    },
+}
+#[derive(Subcommand, Debug)]
 pub enum AnalyzerCommand {
+    /// Manage operator-owned runtime packages, separate from public releases.
+    Packages {
+        #[command(subcommand)]
+        action: PackageAction,
+    },
     /// Run default collection. Administrator rights and Microsoft EULA apply.
     Run {
         #[arg(long)]
@@ -64,7 +110,7 @@ pub enum AnalyzerCommand {
         #[arg(long)]
         output: Option<PathBuf>,
     },
-    /// Validate/extract the bundled or supplied ZIP without running the analyzer.
+    /// Validate/extract a supplied ZIP without running the analyzer.
     Prepare {
         #[arg(long)]
         package: Option<PathBuf>,
@@ -72,13 +118,33 @@ pub enum AnalyzerCommand {
         work_dir: PathBuf,
     },
 }
+#[derive(Subcommand, Debug)]
+pub enum PackageAction {
+    List,
+    Download {
+        #[arg(value_enum)]
+        channel: crate::packages::Channel,
+    },
+    Import {
+        path: PathBuf,
+        #[arg(long, value_enum)]
+        channel: crate::packages::Channel,
+    },
+    Select {
+        id: String,
+        #[arg(long)]
+        pin: bool,
+    },
+    Unpin,
+}
 #[derive(Clone, Copy, Debug, ValueEnum)]
 pub enum Profile {
     Mde,
+    Intune,
+    Azure,
     /// Diagnostic EDR regions plus MDAV and general controls; not an allowlist.
     MdeRegional,
     Entra,
-    Sentinelone,
     Custom,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
@@ -218,6 +284,8 @@ pub fn targets(
         serde_json::from_slice::<EndpointFile>(&bytes)?.endpoints
     } else {
         match name {
+            Profile::Intune => vec!["enterpriseenrollment.manage.microsoft.com".into()],
+            Profile::Azure => vec!["management.azure.com".into(), "portal.azure.com".into()],
             Profile::MdeRegional => regional_targets(),
             Profile::Mde => vec!["edr-weu.eu.endpoint.security.microsoft.com".into()],
             Profile::Entra => vec!["login.microsoftonline.com".into()],
@@ -232,7 +300,7 @@ pub fn targets(
     }
     let mut out = Vec::new();
     for h in hosts {
-        let h = hostname(&h).map_err(anyhow::Error::msg)?;
+        let h = crate::scope::validate(&h).map_err(anyhow::Error::msg)?;
         if !out.contains(&h) {
             out.push(h);
         }

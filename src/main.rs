@@ -21,11 +21,85 @@ async fn execute() -> anyhow::Result<bool> {
         None | Some(Command::Ui) => return defender_diag::ui::run().await,
         Some(command) => command,
     };
+    let command = match command {
+        Command::Intune {
+            action: defender_diag::cli::IntuneAction::Local { mut options },
+        } => {
+            options.preset = defender_diag::collection::Preset::Intune;
+            Command::Collect { options }
+        }
+        other => other,
+    };
     let mut source_feed = None;
     let (hosts, options) = match command {
+        Command::Intune { action } => {
+            use defender_diag::cli::IntuneAction;
+            match action {
+                IntuneAction::Coverage { beta } => println!(
+                    "{}",
+                    serde_json::to_string_pretty(&defender_diag::graph::coverage(beta))?
+                ),
+                IntuneAction::Cloud { options } => {
+                    let cancel = defender_diag::collection::cancel_token();
+                    let c = cancel.clone();
+                    let watcher = tokio::spawn(async move {
+                        let _ = tokio::signal::ctrl_c().await;
+                        c.store(true, std::sync::atomic::Ordering::Relaxed);
+                    });
+                    let result =
+                        defender_diag::graph::run(&options, cancel, |s| eprintln!("{s}")).await;
+                    watcher.abort();
+                    println!("{}", result?.display());
+                }
+                IntuneAction::Local { .. } => unreachable!(),
+            }
+            return Ok(true);
+        }
+        Command::Collect { options } => {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&defender_diag::collection::plan(&options)?)?
+            );
+            if options.run {
+                let cancel = defender_diag::collection::cancel_token();
+                let signal = cancel.clone();
+                let watcher = tokio::spawn(async move {
+                    let _ = tokio::signal::ctrl_c().await;
+                    signal.store(true, std::sync::atomic::Ordering::Relaxed);
+                });
+                let result =
+                    defender_diag::collection::run(&options, cancel, |s| eprintln!("{s}")).await;
+                watcher.abort();
+                println!("{}", result?.display());
+            }
+            return Ok(true);
+        }
+        Command::Firewall {
+            path,
+            search,
+            direction,
+            action,
+            output,
+            csv,
+        } => {
+            let mut v = defender_diag::firewall::parse(&std::fs::read(path)?)?;
+            v["rules"] = defender_diag::firewall::filter(
+                &v,
+                &search,
+                direction.as_deref(),
+                action.as_deref(),
+            )
+            .into();
+            defender_diag::firewall::export(&v, output.as_deref(), csv.as_deref())?;
+            println!("{}", serde_json::to_string_pretty(&v)?);
+            return Ok(true);
+        }
         Command::Analyzer { action } => {
             use defender_diag::{analyzer, cli::AnalyzerCommand};
             match action {
+                AnalyzerCommand::Packages { action } => {
+                    defender_diag::packages::execute(action).await?;
+                }
                 AnalyzerCommand::Import { path, output } => {
                     let report = analyzer::import(&path)?;
                     analyzer::console(&report);
@@ -78,7 +152,10 @@ async fn execute() -> anyhow::Result<bool> {
             source_feed = Some(snapshot);
             (hosts, options)
         }
-        Command::Test { host, options } => (vec![host], options),
+        Command::Test { host, options } => (
+            vec![defender_diag::scope::validate(&host).map_err(anyhow::Error::msg)?],
+            options,
+        ),
         Command::Profile {
             name,
             options,

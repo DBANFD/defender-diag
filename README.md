@@ -2,15 +2,18 @@
 
 A terminal dashboard and command-line tool for investigating Microsoft Defender connectivity. Follow DNS, TCP, TLS, and HTTPS results separately, compare service endpoints, and export evidence for further analysis.
 
-Written in Rust. Current version: **0.5.0**.
+Written in Rust. Current version: **0.6.0**.
 
 ## Features
 
 - Interactive target selection, live results, latency graphs, and per-host statistics.
 - Direct DNS, TCP, verified TLS, and optional service-aware HTTPS probes.
-- Searchable service feeds, regional comparisons, and configurable repeat-test presets.
+- Microsoft-only service feeds, sourced endpoint classification, regional comparisons and repeat-test presets.
 - JSON and CSV reports, plus an incremental JSONL journal for longer runs.
-- Import MDE Client Analyzer findings, with optional Windows collection using a separately supplied Microsoft package.
+- Runtime MDE Client Analyzer packages: standard/preview, offline import, versions and pinning.
+- Windows collection presets with scope previews, bounded evidence, cancellation, manifests and private support ZIPs.
+- Active Windows Firewall rules/profile settings with associated filters, search and JSON/CSV export.
+- Local Intune evidence and optional read-only Graph enrichment with explicit coverage.
 
 ## Build and run
 
@@ -41,6 +44,18 @@ For command-line use, run these examples from the directory containing the Windo
 
 The examples contact the named public services. Custom targets belong in your local configuration.
 
+## Collection examples
+
+~~~powershell
+.\defender-diag.exe analyzer packages download standard
+.\defender-diag.exe collect quick
+.\defender-diag.exe collect defender --hours 48 --run
+.\defender-diag.exe intune local --run
+.\defender-diag.exe intune coverage --beta
+~~~
+
+Collection commands show scope; without --run they only preview. Use the dashboard for package selection/pinning, preset review, Intune investigation and Firewall search. Raw bundles stay local and private. Shareable structural summaries are separate; arbitrary diagnostic content cannot be guaranteed anonymous automatically.
+
 ## Reading the results
 
 Transport success means that the selected connection stages completed. An HTTP response, including 403 or 404, does not by itself establish Defender sensor health. HTTP 5xx responses remain visible for investigation.
@@ -56,6 +71,9 @@ Connections are direct; the tool does not reproduce the sensor's proxy context. 
 | [Endpoint behavior](ENDPOINT_BEHAVIOR.md) | Probe paths and interpretation of service responses |
 | [Client Analyzer](ANALYZER.md) | Importing reports and running a separately supplied Windows package |
 | [Report schema](REPORT_SCHEMA.md) | JSON, CSV, and Analyzer output fields |
+| [Microsoft scope](MICROSOFT_SCOPE.md) | Provider enforcement, endpoint registry and dependencies |
+| [Collections and Firewall](COLLECTIONS.md) | Exact presets, limits, privacy and effective policy view |
+| [Intune investigation](INTUNE.md) | Local evidence, consent, identity resolution and API coverage |
 | [Changelog](CHANGELOG.md) | Changes by version |
 
 ## Development
@@ -72,7 +90,7 @@ Windows is the primary development platform. Cross-platform operational qualific
 
 ## MDE Client Analyzer
 
-Normal source builds do not bundle Microsoft binaries. Import works with an existing report; Windows collection accepts a package supplied by the operator. Microsoft's package retains its own license and prompts. See the [integration guide](ANALYZER.md).
+Public builds never bundle Microsoft binaries. Download/update or import packages at runtime; Windows collection uses the selected operator-owned package. Microsoft's package retains its own license and prompts. See the [integration guide](ANALYZER.md).
 
 ## License
 
