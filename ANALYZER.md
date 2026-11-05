@@ -1,36 +1,42 @@
-# MDE Client Analyzer integration
+# Runtime MDE Client Analyzer packages
 
-Source builds support importing existing reports and running a separately supplied Windows package. Select **MDE Client Analyzer** on the home menu. Run collection from an administrator terminal; Microsoft license and publisher prompts remain interactive. The dashboard returns after collection and shows structured findings, severity counts, selected sensor/AV configuration and Microsoft guidance. Use arrows to select, **f** for relevant/all findings, and **s** to export a redacted summary.
+Public builds **never embed Microsoft packages**, including when the old DEFENDER_DIAG_ANALYZER_ZIP environment variable is present. The MIT license covers this project's source only. Microsoft's license, notices and interactive prompts remain in its package.
 
-For collection, the executable extracts the selected package into a new results/analyzer/run-* directory. It checks the main script's Microsoft Authenticode signature and invokes Windows PowerShell with AllSigned. It does not modify vendor scripts, accept the EULA automatically, or enable optional advanced tracing/dumps. Raw vendor results remain on disk.
-
-Microsoft's workflow and output layout: https://learn.microsoft.com/en-us/defender-endpoint/run-analyzer-windows
-
-## Import existing results
-
-Import works without elevation, including on Linux/macOS. Choose Import in the menu or use:
+## Manage packages
+Dashboard: **MDE Client Analyzer > Manage packages**. C changes standard/preview; D downloads/updates; I imports a ZIP; arrows choose a stored version; S selects; P selects and pins; U unpins; Enter shows metadata.
 
 ~~~powershell
-.\defender-diag.exe analyzer import C:\Evidence\MDEClientAnalyzerResult.zip --output summary.json
-.\defender-diag.exe analyzer import C:\Evidence\MDEClientAnalyzerResult
-.\defender-diag.exe analyzer run
-.\defender-diag.exe analyzer prepare --work-dir .\package-check
+defender-diag analyzer packages download standard
+defender-diag analyzer packages download preview
+defender-diag analyzer packages import C:\Private\MDEClientAnalyzer.zip --channel standard
+defender-diag analyzer packages list
+defender-diag analyzer packages select standard-<64-character-sha256> --pin
+defender-diag analyzer packages unpin
+defender-diag analyzer run
 ~~~
 
-Import accepts XML, a result folder, or a ZIP containing exactly one MDEClientAnalyzer.xml. It does not execute imported files. HTML-only reports are not parsed. Multiple XML reports are rejected as ambiguous. XML is limited to 16 MiB and result ZIPs to 512 MiB. Package extraction rejects traversal, symlinks and oversized contents.
+Standard: https://aka.ms/mdatpanalyzer
+Preview: https://aka.ms/MDEClientAnalyzerPreview
 
-Findings are historical evidence from the selected report, separate from direct connectivity percentages. Errors and warnings are always relevant; the default view also includes connectivity, proxy, TLS, certificate, DNS, onboarding, sensor and AV checks. An empty event list is marked incomplete, never an all-clear. Import success means parsing succeeded, not that the endpoint is healthy.
+These links were verified against [Microsoft's Windows Analyzer instructions](https://learn.microsoft.com/en-us/defender-endpoint/run-analyzer-windows) on 2026-11-05. Every redirect must be HTTPS on aka.ms or download.microsoft.com, with final content on download.microsoft.com. Unexpected redirects fail closed instead of expanding trust automatically.
 
-Summary export redacts common credential patterns and URL query values, withholds proxy snapshot values, and excludes arbitrary configuration payloads. Raw Microsoft reports are unchanged and may contain sensitive endpoint information. Redaction is pattern-based, not a guarantee that arbitrary free text is secret-free; inspect before sharing.
+Windows stores packages under %LOCALAPPDATA%\DefenderDiag\packages. Linux/macOS use XDG_DATA_HOME/defender-diag/packages or ~/.local/share/defender-diag/packages. Packages are retained side by side using channel and content SHA-256. Successful updates switch only an unpinned selection of the same channel. Failed acquisition/validation leaves the selection and older packages intact. Explicit selection can switch a pinned version. A channel may temporarily deliver identical bytes to another channel.
 
-## Package and build
+Metadata records channel, source, redirect chain, acquisition time, SHA-256, exposed script version (null if unavailable) and file signature results. Offline channel labels are operator-declared, not inferred from the filename. SHA-256 identifies content; it is not publisher authentication.
 
-Obtain the package through Microsoft's documented Client Analyzer workflow and follow its license terms. The package is not included in this repository or covered by the project license.
+Validation uses bounded extraction, disallows traversal/alternate streams/Windows device filenames/symlinks, and limits archive entries/expanded size. On Windows the PS1/PSM1/EXE/DLL payloads require valid Microsoft Authenticode signatures. Other package data files are not individually Authenticode-authenticated. Offline packages must come from a trusted source; a collection of signed files is not a signed ZIP manifest. Import on other platforms records signatures as not_verified and cannot execute the Windows collector.
 
-A normal Cargo build supports import and `analyzer run --package PATH` on Windows. For an optional local bundled build, pass a package explicitly to `./Build-Release.ps1 -AnalyzerZip PATH`. There is no automatic package download or update.
+## Run and import findings
+Run from an administrator terminal. The selected ZIP hash is rechecked and freshly extracted; signatures are checked again. The original main script runs with AllSigned and Microsoft's prompts. No license is autoaccepted. Collection notes record package hash and matching stored metadata. An explicitly supplied --package remains supported and is verified at execution.
 
-The delivered app is one EXE, but running Analyzer necessarily extracts its files and writes reports. Windows PowerShell and the Analyzer's OS prerequisites are still required.
+~~~powershell
+defender-diag analyzer run --package C:\Private\MDEClientAnalyzer.zip
+defender-diag analyzer prepare --package C:\Private\MDEClientAnalyzer.zip
+defender-diag analyzer import C:\Private\MDEClientAnalyzerResult.zip --output summary.json
+~~~
 
-## Platform scope
+XML/ZIP/folder result import remains read-only and cross-platform. Multiple structured reports in a ZIP are rejected as ambiguous. HTML-only import is unsupported. The dashboard shows errors, warnings, selected sensor/AV fields and guidance; F toggles relevant/all, S exports the pattern-redacted summary.
 
-Windows collection requires elevation and the Microsoft package's prerequisites. Import does not require elevation. Native Linux/macOS Analyzer collection and advanced capture options are not included. Cross-platform import qualification and a full elevated Windows collection pilot remain ongoing.
+Raw Microsoft artifacts remain private and unchanged. Pattern redaction cannot guarantee arbitrary vendor content is anonymous. Evidence is a source-time snapshot, not current state or a direct-probe success verdict.
+
+Known limits: signature verification can depend on Windows trust/revocation access; blocked validation is reported, not bypassed. Download requests have a 120-second timeout, at most six redirect hops and a 64-MiB package limit. Package verification/import is not an interruptible collector job. Full elevated vendor collection remains a separate live pilot; package download/verification does not establish sensor health.

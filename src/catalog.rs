@@ -14,9 +14,6 @@ fn word(s: &str) -> String {
         "msdefender" => "Microsoft Defender",
         "m365" => "Microsoft 365",
         "msintune" => "Microsoft Intune",
-        "androidenterprise" => "Android Enterprise",
-        "samsungknox" => "Samsung Knox",
-        "sfdc" => "Salesforce",
         "all" => "All scopes",
         "any" => "All service categories",
         "ww" | "worldwide" => "Worldwide / shared",
@@ -52,7 +49,6 @@ fn word(s: &str) -> String {
         "required" => "Required category",
         "recommended" => "Recommended category",
         "auth" => "Authentication",
-        "cloudswgmanagement" => "Cloud SWG management",
         _ if s.starts_with("microsoftdefenderforendpoint") => "Defender for Endpoint service",
         _ => return s.replace(['-', '_'], " "),
     };

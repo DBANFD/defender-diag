@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0
+
+- Microsoft-only feeds and custom-target classification, preserving Microsoft regions/clouds and documented dependencies.
+- Runtime standard/preview Analyzer download/import, version selection/pinning and redirect/signature validation. Public build-time embedding removed.
+- Local Defender status page and CLI for Get-MpComputerStatus and Get-MpPreference, with bounded cancellable queries.
+- Removed Intune policy investigation, Graph authentication, Windows evidence presets and effective Firewall rule features before release. Microsoft service connectivity categories remain.
+- Anonymous offline query/process fixtures; full elevated Analyzer pilot remains pending.
+
+
 ## 0.5.0 - 2026-11-04
 
 - Readable feed categories, scope descriptions and friendly-name search.
@@ -29,7 +38,7 @@
 
 - Added an interactive terminal dashboard when launched without arguments, with bordered panels, live per-IP rows, colored outcomes and latency graph.
 - Added keyboard target selection, test settings, DNS/TCP/TLS/HTTPS modes, automatic JSON/CSV saves and repeatable runs.
-- Embedded 231 Palo Alto URL-feed links from the 2026-11-04 catalogue. Added live verified-HTTPS feed download, filtering, exclusion review and concrete-host selection.
+- Added the initial feed catalogue (superseded by Microsoft-only scope in 0.6.0). Added live verified-HTTPS feed download, filtering, exclusion review and concrete-host selection.
 - Added feed provenance to JSON: source URL, UTC retrieval time, SHA-256, eligible inventory and exclusions.
 - Preserved existing CLI commands; added ui, feeds, edl and --mode.
 - Kept wildcard and path exclusions explicit; HTTP 4xx/5xx remain transport successes with amber application-status indicators.

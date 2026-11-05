@@ -36,6 +36,13 @@ pub fn validate_url(url: &str) -> Result<()> {
                 .all(|b| b.is_ascii_alphanumeric() || b"_/-".contains(&b)),
         "Expected a /feeds/.../url feed (IP lists are not TLS hostname targets)"
     );
+    ensure!(
+        matches!(
+            u.path().split('/').nth(2),
+            Some("msdefender" | "m365" | "msintune" | "azure")
+        ),
+        "Only Microsoft service feeds are supported"
+    );
     Ok(())
 }
 #[derive(Clone, Debug, Serialize)]
@@ -45,6 +52,7 @@ pub struct SkippedEntry {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct FeedSnapshot {
+    pub classification: std::collections::BTreeMap<String, String>,
     pub url: String,
     pub retrieved_at: String,
     pub sha256: String,
@@ -106,6 +114,7 @@ pub fn parse_feed(url: &str, body: &str) -> Result<FeedSnapshot> {
         "Feed has more than 256 concrete hosts; select a narrower feed"
     );
     Ok(FeedSnapshot {
+        classification: targets.iter().map(|h| (h.clone(),crate::scope::classify(h).map(|r|format!("{}; {}",r.purpose,r.source)).unwrap_or_else(||"Dependency listed by the selected Microsoft service feed; precise purpose not supplied by this source. Retained for review, not asserted Microsoft-owned.".into()))).collect(),
         url: url.into(),
         retrieved_at: chrono::Utc::now().to_rfc3339(),
         sha256: format!("{:x}", Sha256::digest(body.as_bytes())),

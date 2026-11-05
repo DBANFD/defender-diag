@@ -1,0 +1,278 @@
+[
+  {
+    "domain": "microsoft.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "microsoftonline.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "microsoftonline-p.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "microsoftonline-p.net",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "microsoftonline.cn",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "microsoftonline.us",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "office.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "office.net",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "office365.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "outlook.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "outlook.office365.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "sharepoint.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "sharepointonline.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "teams.microsoft.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "skype.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "lync.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "msauth.net",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "msftauth.net",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "msauthimages.net",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "msftauthimages.net",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "onmicrosoft.com",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "office365.us",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "office365.cn",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "sharepoint.us",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "sharepoint.cn",
+    "subdomains": true,
+    "purpose": "Microsoft 365 documented service namespaces",
+    "source": "https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges"
+  },
+  {
+    "domain": "windows.net",
+    "subdomains": true,
+    "purpose": "Defender sensor, cloud protection and telemetry",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/configure-environment"
+  },
+  {
+    "domain": "windows.com",
+    "subdomains": true,
+    "purpose": "Defender sensor, cloud protection and telemetry",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/configure-environment"
+  },
+  {
+    "domain": "windowsupdate.com",
+    "subdomains": true,
+    "purpose": "Defender sensor, cloud protection and telemetry",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/configure-environment"
+  },
+  {
+    "domain": "microsoft.us",
+    "subdomains": true,
+    "purpose": "Defender sensor, cloud protection and telemetry",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/configure-environment"
+  },
+  {
+    "domain": "security.microsoft.com",
+    "subdomains": true,
+    "purpose": "Defender sensor, cloud protection and telemetry",
+    "source": "https://learn.microsoft.com/en-us/defender-endpoint/configure-environment"
+  },
+  {
+    "domain": "manage.microsoft.com",
+    "subdomains": true,
+    "purpose": "Intune enrollment, policy and content delivery",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "manage.microsoft.us",
+    "subdomains": true,
+    "purpose": "Intune enrollment, policy and content delivery",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "manage.microsoft.cn",
+    "subdomains": true,
+    "purpose": "Intune enrollment, policy and content delivery",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "azureedge.net",
+    "subdomains": true,
+    "purpose": "Intune enrollment, policy and content delivery",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "msedge.net",
+    "subdomains": true,
+    "purpose": "Intune enrollment, policy and content delivery",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "azure.com",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "azure.net",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "azurewebsites.net",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "azure-api.net",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "azurecr.io",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "azure.cn",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "chinacloudapi.cn",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "usgovcloudapi.net",
+    "subdomains": true,
+    "purpose": "Azure public and sovereign service namespaces (tenant content is not Microsoft-authored)",
+    "source": "https://learn.microsoft.com/en-us/azure/security/fundamentals/azure-domains"
+  },
+  {
+    "domain": "crl3.digicert.com",
+    "subdomains": false,
+    "purpose": "Certificate revocation dependency for Microsoft service certificate chains; not a Microsoft-owned service",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "crl4.digicert.com",
+    "subdomains": false,
+    "purpose": "Certificate revocation dependency for Microsoft service certificate chains; not a Microsoft-owned service",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  },
+  {
+    "domain": "ocsp.digicert.com",
+    "subdomains": false,
+    "purpose": "Certificate revocation dependency for Microsoft service certificate chains; not a Microsoft-owned service",
+    "source": "https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/intune-endpoints"
+  }
+]
