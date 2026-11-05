@@ -20,3 +20,5 @@ pub mod defender;
 pub mod packages;
 pub mod process;
 pub mod workbench;
+
+pub mod mde_check;

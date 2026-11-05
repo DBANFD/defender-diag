@@ -2,7 +2,7 @@
 
 A terminal dashboard and command-line tool for investigating Microsoft Defender connectivity. Follow DNS, TCP, TLS, and HTTPS results separately, compare service endpoints, and export evidence for further analysis.
 
-Written in Rust. Current version: **0.6.0**.
+Written in Rust. Source version: **0.7.0 (under review)**. The latest published release may be older.
 
 ## Features
 
@@ -47,6 +47,16 @@ For command-line use, run these examples from the directory containing the Windo
 ```
 
 The examples contact the named public services. Custom targets belong in your local configuration.
+
+## Standard and Streamlined connectivity check
+
+Open **MDE connectivity check** in the dashboard. EU is the default tenant data region; select US/UK if appropriate, choose 3/10/30 rounds, then START. The check uses concrete diagnostic paths and separately reports Standard and Streamlined samples, partial/intermittent results and failed alternate IPs.
+
+```powershell
+.\defender-diag.exe mde-check --region eu --count 3 --output mde-check.json
+```
+
+A passing sample is not complete service readiness or evidence of the configured onboarding mode. Feed errors can differ from `mdatp connectivity test` because of region, path, proxy, certificate validation and IPv4/IPv6 differences. See [MDE connectivity checks](MDE_CONNECTIVITY.md).
 
 ## Defender status and Analyzer packages
 

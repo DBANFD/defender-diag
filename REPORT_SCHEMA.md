@@ -51,3 +51,6 @@ Connectivity schema 2 and Analyzer import schema 1 remain compatible. Feed snaps
 - Package metadata schema 1: id (channel-SHA256), channel, source, redirects, acquired_at, sha256, optional script_version, signatures. Selection records are append-only {id,pinned}. Hashes are content identity, not publisher authentication.
 
 Defender status is display-only command output, not a connectivity report schema. It includes command, query time and pretty-printed values; no automatic file export.
+
+## MDE check schema 1 (0.7.0)
+Separate from connectivity schema 2: schema_version, tool_version, started_at/completed_at, region, route=direct, cancelled, conclusion, limitations, comparison_guidance, proxy, hosts, models, dns, attempts, warnings. Targets retain hostname/path/purpose/source/expected_status. Host rows record responding/observed/expected rounds, transport successes, address failures and HTTP review counts. A host responds when at least one IP receives validated HTTPS GET 200 on the exact diagnostic path in every requested round. Failures on other IPs remain visible. Model verdicts: responding, partial_or_intermittent, not_confirmed, incomplete. A missing host/round or cancellation cannot produce a passing combined verdict. Cancelled reports retain completed attempts but may omit in-flight DNS/address work. All exports use create-new.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 - Unreleased
+
+- Pinned, color-coded Standard/Streamlined PASS/FAIL/INCOMPLETE summary, colored per-host results and terminal-aware CLI status colors.
+
+- EU-default Standard/Streamlined diagnostic samples in dashboard and CLI, with regional selection, repeated tests, per-round hostname reachability, alternate-IP warnings, cancellation and JSON evidence.
+- Explain DNS/TCP/TLS/HTTP failures and differences from mdatp; show guidance in the selected result panel. HTTP responses remain distinct from transport failures; no error is silently turned into success.
+- Curated probe paths sourced from Microsoft Linux guidance and the verified Client Analyzer regional endpoint metadata. Coverage is explicitly partial and commercial-cloud only.
+
+
 ## 0.6.0
 
 - Portable release archives for Windows x64, Linux x64, macOS Intel and Apple Silicon, with checksums and per-target build/test gates.
