@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 - Unreleased
+## 0.7.0 - 2026-11-05
 
 - Pinned, color-coded Standard/Streamlined PASS/FAIL/INCOMPLETE summary, colored per-host results and terminal-aware CLI status colors.
 
