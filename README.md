@@ -17,8 +17,8 @@ Written in Rust. Current version: **0.5.0**.
 Install [Rust](https://www.rust-lang.org/tools/install) and a native compiler toolchain. On Windows, use the MSVC toolchain with Visual Studio C++ Build Tools and the Windows SDK.
 
 ```sh
-git clone https://github.com/DBANFD/demomx.git
-cd demomx
+git clone https://github.com/DBANFD/defender-diag.git
+cd defender-diag
 cargo build --release --locked
 ```
 
