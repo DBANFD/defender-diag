@@ -13,6 +13,11 @@ pub struct Cli {
 }
 #[derive(Subcommand, Debug)]
 pub enum Command {
+    /// Compare curated Standard and Streamlined MDE diagnostic paths (commercial cloud).
+    MdeCheck {
+        #[command(flatten)]
+        options: crate::mde_check::CheckOptions,
+    },
     /// Display local Defender running mode or preferences (Windows only, read only).
     Defender {
         #[arg(value_enum, default_value = "computer-status")]

@@ -61,3 +61,6 @@ Full JSON/CSV and summaries are still produced after a successful run completion
 - Per-stage failure trends and consecutive-failure streaks.
 
 For Analyzer packages and local Defender queries, see [ANALYZER.md](ANALYZER.md) and [DEFENDER_STATUS.md](DEFENDER_STATUS.md). Tests use anonymous fixtures; live reads are operator-invoked.
+
+## Standard / Streamlined samples
+Use the dedicated MDE connectivity check (EU default), rather than an entire regional feed, for concrete diagnostic paths. See [MDE connectivity samples](MDE_CONNECTIVITY.md) for pass criteria, partial results and the comparison with mdatp. Tests cover alternate IPv4/IPv6 outcomes, intermittent rounds, HTTP rejection, exact paths, missing/cancelled results and catalog provenance.

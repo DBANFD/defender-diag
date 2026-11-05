@@ -18,6 +18,16 @@ pub fn probe(host: &str, port: u16, generic: bool) -> Probe {
     if generic || port != 443 {
         return GENERIC;
     }
+    if let Some(t) = crate::mde_check::catalog()
+        .iter()
+        .find(|t| t.hostname == host)
+    {
+        return Probe {
+            method: "GET",
+            path: &t.path,
+            source: &t.source,
+        };
+    }
     let path = match host {
         "edr-weu.eu.endpoint.security.microsoft.com"
         | "edr-neu.eu.endpoint.security.microsoft.com"
@@ -86,6 +96,69 @@ fn rules() -> &'static [Rule] {
             .expect("validated embedded expectations")
     })
 }
+pub fn failure_guidance(a: &Attempt) -> String {
+    let Some(e) = &a.error else {
+        return String::new();
+    };
+    let hint = match e.code.as_str() {
+        "DNS_TIMEOUT" => {
+            "DNS did not answer before the deadline. Check resolver reachability and repeat; TCP/TLS were not tested."
+        }
+        "DNS_LOOKUP_FAILED" => {
+            "No usable address was resolved. Check the exact name, regional/OS applicability and resolver response. A feed entry or wildcard parent is not necessarily a standalone service hostname; this does not prove Defender is offline."
+        }
+        "TCP_TIMEOUT" => {
+            "DNS resolved but this IP/port did not complete TCP before the deadline. Routing, filtering or packet loss are possibilities; the failing component is not established."
+        }
+        "TCP_REFUSED" => {
+            "This IP actively refused the connection. Check the documented port and service endpoint; refusal is not a DNS or certificate error."
+        }
+        "TCP_UNREACHABLE" => {
+            "No route to this IP was available. Compare IPv4 and IPv6: an unavailable address family can fail while another address works."
+        }
+        "TCP_PERMISSION_DENIED" => {
+            "The local OS denied the connection. Review local firewall/security policy and process permissions."
+        }
+        "TLS_TIMEOUT" => {
+            "TCP connected, but TLS negotiation timed out. Check TLS inspection, proxy requirements, packet loss/MTU and repeat. TCP success alone does not establish HTTPS connectivity."
+        }
+        "TLS_CERTIFICATE_INVALID" => {
+            "TLS certificate validation failed. Check hostname, expiry, system time and trust chain; inspection is one possible cause, not proven by this error alone. Verification was not bypassed."
+        }
+        "TLS_HANDSHAKE_FAILED" => {
+            "TCP connected but TLS negotiation failed. Review the raw alert/reset, TLS inspection and route. This app does not reproduce Defender certificate pinning."
+        }
+        "HTTP_TIMEOUT" => {
+            "TLS validated, but no complete HTTP headers arrived before the deadline. Check the recorded method/path and intermediary/service behavior."
+        }
+        "HTTP_IO" => {
+            "The connection ended or failed while exchanging HTTP after TLS. A generic root/method may not be a service diagnostic; compare the documented request path."
+        }
+        _ => {
+            "The recorded stage failed for this attempt. Retain the raw error and compare another IP/round; do not infer a sensor outage from one address probe."
+        }
+    };
+    let family = if a.ip.is_some_and(|ip| ip.is_ipv6()) {
+        " This is an IPv6 attempt; inspect IPv4 results before deciding the hostname is unreachable."
+    } else {
+        ""
+    };
+    format!(
+        "{hint}{family} DIRECT route: proxy variables and the Defender sensor's proxy/pinning context are not used. No failure is suppressed as expected."
+    )
+}
+/// Evidence about another working address, without changing the failed attempt.
+pub fn alternate_address_note(a: &Attempt, attempts: &[Attempt]) -> &'static str {
+    if !a.success
+        && attempts.iter().any(|b| {
+            b.hostname == a.hostname && b.iteration == a.iteration && b.ip != a.ip && b.success
+        })
+    {
+        "Another IP for this hostname completed the selected stages in the same round. This is an address-specific failure, not total hostname unreachability."
+    } else {
+        ""
+    }
+}
 pub fn assess(a: &mut Attempt) {
     let (assessment, note) = if let Some(e) = &a.error {
         if e.code == "DNS_LOOKUP_FAILED" && family_apex(&a.hostname) {
@@ -95,7 +168,7 @@ pub fn assess(a: &mut Attempt) {
         {
             ("optional_ipv6_probe".into(),"Microsoft documents this as an optional IPv6 probe. Check IPv6 availability before interpreting its failure as a required-service outage. Raw failure retained.".into())
         } else {
-            ("transport_failure".into(),"Requested stage failed. No expected-response rule suppresses DNS, TCP or certificate failures.".into())
+            ("transport_failure".into(), failure_guidance(a))
         }
     } else if let Some(status) = a.http_status {
         let root = a.http_path.as_deref() == Some("/") && a.port == 443;
@@ -137,7 +210,7 @@ pub fn assess(a: &mut Attempt) {
                 (
                     "review_http".into(),
                     format!(
-                        "HTTP {status}: transport succeeded; method, path, authentication or service policy may explain the response. No specific expectation matched this request."
+                        "HTTP {status}: HTTPS transport succeeded; this is an application response, not a DNS/TCP/TLS failure. Method, path, authentication or service policy may explain it. No specific expectation matched this request; it does not prove sensor failure."
                     ),
                 )
             }
@@ -225,6 +298,32 @@ mod tests {
         assess(&mut a);
         assert_eq!(a.assessment, "transport_failure");
         assert!(!a.success);
+    }
+    #[test]
+    fn stage_guidance_is_actionable_without_guessing_root_cause() {
+        let mut a = Attempt::new(
+            "login.microsoftonline.com".into(),
+            Some("2001:db8::1".parse().unwrap()),
+            443,
+            1,
+        );
+        for (code, phrase) in [
+            ("DNS_LOOKUP_FAILED", "No usable address"),
+            ("TCP_TIMEOUT", "did not complete TCP"),
+            ("TLS_TIMEOUT", "TCP connected"),
+            ("TLS_CERTIFICATE_INVALID", "not proven"),
+            ("HTTP_TIMEOUT", "TLS validated"),
+        ] {
+            a.error = Some(Failure::new(code, "fixture"));
+            assess(&mut a);
+            assert!(!a.success);
+            assert!(a.diagnostic_note.contains(phrase));
+            assert!(a.diagnostic_note.contains("IPv6"));
+        }
+        let mut other = response("login.microsoftonline.com", "/", 403);
+        assess(&mut other);
+        assert!(other.success);
+        assert!(other.diagnostic_note.contains("application response"));
     }
     #[test]
     fn known_apex_is_not_success() {

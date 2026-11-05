@@ -103,7 +103,7 @@ impl App {
     }
     fn count(&self) -> usize {
         match self.page {
-            Page::Home => 10,
+            Page::Home => 11,
             Page::AnalyzerMenu => 4,
             Page::AnalyzerResults => self.analyzer_rows().len(),
             Page::Feeds => self.feeds.len(),
@@ -428,6 +428,7 @@ impl App {
             }
             KeyCode::Enter => match self.page {
                 Page::Home => match self.cursor {
+                    10 => self.workbench = Some(crate::workbench::Section::MdeCheck),
                     8 => {
                         self.feed = None;
                         self.set_hosts(vec![
@@ -635,6 +636,7 @@ fn draw(f: &mut Frame, a: &App) {
                 "Defender status — Get-MpComputerStatus / Get-MpPreference".into(),
                 "Microsoft Azure — management / portal sample targets".into(),
                 "Microsoft Intune — enrollment sample target".into(),
+                "MDE connectivity check — Standard / Streamlined (EU default)".into(),
             ],
         ),
         Page::AnalyzerMenu => (
@@ -846,7 +848,7 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
         let text=a.attempts.get(a.cursor).map(|x|format!(
             "{}\nIP {:?} | port {} | round {} | {}\nRequest: {} {}\nAssessment: {}\n\n{}\n\nError: {:?}\nTLS {:?} | {:?}\nCertificates:\n{}",
             x.hostname,x.ip,x.port,x.iteration,x.timestamp,x.http_method.as_deref().unwrap_or("not attempted"),x.http_path.as_deref().unwrap_or(""),
-            x.assessment,safe(&x.diagnostic_note),x.error,x.tls_version,x.cipher,
+            x.assessment,format_args!("{}\n{}",safe(&x.diagnostic_note),crate::endpoints::alternate_address_note(x,&a.attempts)),x.error,x.tls_version,x.cipher,
             x.certificates.iter().map(|c|format!("Subject: {}\nIssuer: {}\nExpires: {}",safe(&c.subject),safe(&c.issuer),safe(&c.expires))).collect::<Vec<_>>().join("\n")
         )).unwrap_or_else(||"No completed attempt selected.".into());
         f.render_widget(
@@ -875,7 +877,7 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
     let total = a.attempts.len();
     f.render_widget(
         Paragraph::new(format!(
-            "{} | Done {total} | OK {ok} | Fail {} | HTTP review {app_errors} | {:.1}%",
+            "{} | Done {total} | Transport OK {ok} | Failed attempts {} | HTTP review {app_errors} | {:.1}%",
             if a.page == Page::Running {
                 "RUNNING"
             } else {
@@ -1003,8 +1005,12 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
                 .map(|d| format!("DNS {:.1} ms: {:?}", d.duration_ms, d.addresses))
                 .unwrap_or_default();
             format!(
-                "{stats}\n{} | {:?} | {:?}\n{cert}\n{dns}\n{error}",
-                x.timestamp, x.tls_version, x.cipher
+                "{stats}\n{}\n{}\n{} | {:?} | {:?}\n{cert}\n{dns}\n{error}",
+                safe(&x.diagnostic_note),
+                crate::endpoints::alternate_address_note(x, &a.attempts),
+                x.timestamp,
+                x.tls_version,
+                x.cipher
             )
         })
         .unwrap_or_else(|| "Waiting for first completed probe...".into());
@@ -1130,7 +1136,7 @@ mod tests {
     #[test]
     fn defender_home_entry_and_remaining_targets() {
         let mut a = App::new();
-        assert_eq!(a.count(), 10);
+        assert_eq!(a.count(), 11);
         let mut t = ratatui::Terminal::new(ratatui::backend::TestBackend::new(140, 40)).unwrap();
         t.draw(|f| draw(f, &a)).unwrap();
         let text: String = t
@@ -1141,6 +1147,7 @@ mod tests {
             .map(|c| c.symbol())
             .collect();
         assert!(text.contains("Defender status"));
+        assert!(text.contains("MDE connectivity check"));
         assert!(!text.contains("Intune policy investigation"));
         assert!(!text.contains("Windows evidence collections"));
         a.cursor = 7;

@@ -118,3 +118,6 @@ See [ENDPOINT_BEHAVIOR.md](ENDPOINT_BEHAVIOR.md) for the script review, official
 Known wildcard-family apexes are excluded when importing feeds; concrete service names are required. An explicitly requested apex still records its raw DNS failure with contextual guidance. No undocumented DNS failures are silently labelled expected. Version 0.3.0 exports schema 2 with method, path and assessment fields; prior reports remain unchanged.
 
 Defender queries: exit 0 means output was retrieved, not that protection is healthy. Missing module, access denial, cancellation and query errors exit 2. Use `defender computer-status` or `defender preferences`; see [Defender status](DEFENDER_STATUS.md).
+
+## MDE connectivity comparison
+Dashboard: **MDE connectivity check**. CLI: `defender-diag mde-check --region eu --count 3 --output mde-check.json`. Regions: eu/us/uk; default eu. CLI permits 1-1000 rounds and `--timeout-seconds` 1-120 (default 10 per stage); interval is one second, concurrency four. Ctrl+C/Esc cancels and retains completed attempts in the partial result. Exit 0 means both curated samples responded; 1 means partial/incomplete/not confirmed; 2 means a fatal configuration/report error. This does not report the device's configured onboarding mode or full service readiness. See [coverage and interpretation](MDE_CONNECTIVITY.md).

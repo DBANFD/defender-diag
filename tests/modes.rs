@@ -151,3 +151,20 @@ fn removed_investigations_are_not_commands() {
         assert!(Cli::try_parse_from(["d", "defender", query]).is_ok());
     }
 }
+
+#[test]
+fn mde_check_cli_defaults_and_limits() {
+    let cli = Cli::try_parse_from(["d", "mde-check"]).unwrap();
+    let Command::MdeCheck { options } = cli.command.unwrap() else {
+        panic!("wrong command")
+    };
+    assert_eq!(options.region, defender_diag::mde_check::Region::Eu);
+    assert_eq!(options.count, 3);
+    for args in [
+        ["d", "mde-check", "--count", "0"],
+        ["d", "mde-check", "--region", "gov"],
+        ["d", "mde-check", "--timeout-seconds", "0"],
+    ] {
+        assert!(Cli::try_parse_from(args).is_err());
+    }
+}

@@ -12,10 +12,12 @@ use std::{path::PathBuf, sync::atomic::Ordering, time::Duration};
 pub enum Section {
     Packages,
     Defender,
+    MdeCheck,
 }
 #[derive(Clone, Copy, PartialEq)]
 enum Page {
     Menu,
+    CheckMenu,
     Packages,
 
     Viewer,
@@ -30,12 +32,14 @@ struct State {
     channel: packages::Channel,
     packages: Vec<packages::Package>,
     search: String,
+    check: crate::mde_check::CheckOptions,
 }
 impl State {
     fn new(section: Section) -> Self {
         Self {
             page: match section {
                 Section::Packages => Page::Packages,
+                Section::MdeCheck => Page::CheckMenu,
                 _ => Page::Menu,
             },
             cursor: 0,
@@ -47,10 +51,23 @@ impl State {
             channel: packages::Channel::Standard,
             packages: packages::list(&packages::store()).unwrap_or_default(),
             search: String::new(),
+            check: Default::default(),
         }
     }
     fn rows(&self) -> Vec<String> {
         match self.page {
+            Page::CheckMenu => vec![
+                format!(
+                    "Tenant data region: {} (commercial cloud)",
+                    self.check.region.name().to_uppercase()
+                ),
+                format!(
+                    "Iterations: {} (1 second between rounds; 10 seconds per stage)",
+                    self.check.count
+                ),
+                "START Standard + Streamlined diagnostic samples (DIRECT)".into(),
+                "Why feed errors can differ from mdatp / scope and limitations".into(),
+            ],
             Page::Menu => [
                 "Get-MpComputerStatus (all status fields)",
                 "Get-MpPreference (all returned preferences)",
@@ -100,7 +117,11 @@ pub async fn run(section: Section) -> Result<()> {
     let mut s = State::new(section);
     let mut job: Option<tokio::task::JoinHandle<Result<String>>> = None;
     let mut cancel = process::cancel_token();
+    let (progress_tx, mut progress_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
     loop {
+        while let Ok(message) = progress_rx.try_recv() {
+            s.status = message;
+        }
         if job.as_ref().is_some_and(|j| j.is_finished()) {
             match job.take().unwrap().await {
                 Ok(Ok(text)) => {
@@ -120,11 +141,11 @@ pub async fn run(section: Section) -> Result<()> {
         }
         terminal.draw(|f|{
             let area=Layout::vertical([Constraint::Length(3),Constraint::Min(4),Constraint::Length(6)]).split(f.area());
-            let title=match s.page{Page::Menu=>"Defender status (Windows): choose a read-only query",Page::Packages=>"Analyzer packages: operator-owned; never embedded",Page::Viewer=>"Query output (preferences may contain private paths and exclusions)"};
+            let title=match s.page{Page::CheckMenu=>"MDE Standard / Streamlined samples: review region, then START",Page::Menu=>"Defender status (Windows): choose a read-only query",Page::Packages=>"Analyzer packages: operator-owned; never embedded",Page::Viewer=>"Results / explanation (scroll or search; raw failures retained)"};
             f.render_widget(Paragraph::new(title).style(Style::default().fg(Color::Cyan)).block(Block::default().borders(Borders::ALL)),area[0]);
-            if matches!(s.page,Page::Menu|Page::Packages){let rows=s.rows();let mut state=ListState::default().with_selected(Some(s.cursor));f.render_stateful_widget(List::new(rows).highlight_symbol("> ").highlight_style(Style::default().fg(Color::Cyan)).block(Block::default().borders(Borders::ALL)),area[1],&mut state);}
+            if matches!(s.page,Page::Menu|Page::CheckMenu|Page::Packages){let rows=s.rows();let mut state=ListState::default().with_selected(Some(s.cursor));f.render_stateful_widget(List::new(rows).highlight_symbol("> ").highlight_style(Style::default().fg(Color::Cyan)).block(Block::default().borders(Borders::ALL)),area[1],&mut state);}
             else {let text=if s.search.is_empty(){s.text.clone()}else{s.text.lines().filter(|l|l.to_lowercase().contains(&s.search.to_lowercase())).collect::<Vec<_>>().join("\n")};f.render_widget(Paragraph::new(crate::analyzer::clean(&text)).wrap(Wrap{trim:false}).scroll((s.scroll,0)).block(Block::default().borders(Borders::ALL)),area[1]);}
-            let help=if job.is_some(){if s.page==Page::Packages {"Package acquisition/validation in progress; wait before changing selection."} else {"Esc cancels the query. No files saved."}}else{match s.page{Page::Packages=>"C channel | D download/update | I import ZIP | S select | P pin | U unpin | Enter metadata | Esc back",Page::Viewer=>"Arrows/PgUp/PgDn scroll | / search | Esc back",Page::Menu=>"Arrows/Enter run query | Esc return"}};
+            let help=if job.is_some(){if s.page==Page::Packages {"Package acquisition/validation in progress; wait before changing selection."} else {"Esc cancels the query. No files saved."}}else{match s.page{Page::Packages=>"C channel | D download/update | I import ZIP | S select | P pin | U unpin | Enter metadata | Esc back",Page::Viewer=>"Arrows/PgUp/PgDn scroll | / search | Esc back",Page::CheckMenu=>"Arrows/Enter change selection or START | Esc return",Page::Menu=>"Arrows/Enter run query | Esc return"}};
             let input=s.input.as_ref().map(|(k,v)|format!("{k}: {v}_ [Enter accept, Esc cancel]")).unwrap_or_default();
             let package_note=if s.page==Page::Packages{let selected=packages::selection(&packages::store()).ok().flatten().map(|x|format!("{} pinned={}",x.id,x.pinned)).unwrap_or_else(||"none".into());format!("Channel {} | selected {selected}",s.channel.name())}else{String::new()};
             f.render_widget(Paragraph::new(format!("{help}\n{input}{package_note}\n{}",s.status)).wrap(Wrap{trim:true}).block(Block::default().borders(Borders::ALL)),area[2]);
@@ -187,6 +208,7 @@ pub async fn run(section: Section) -> Result<()> {
                 if matches!(s.page, Page::Viewer) {
                     s.page = match section {
                         Section::Packages => Page::Packages,
+                        Section::MdeCheck => Page::CheckMenu,
                         _ => Page::Menu,
                     };
                     s.cursor = 0;
@@ -205,25 +227,56 @@ pub async fn run(section: Section) -> Result<()> {
             }
             KeyCode::PageUp => s.scroll = s.scroll.saturating_sub(10),
             KeyCode::PageDown => s.scroll = s.scroll.saturating_add(10),
-            KeyCode::Enter => match s.page {
-                Page::Menu => {
-                    let query = if s.cursor == 0 {
-                        defender::Query::ComputerStatus
-                    } else {
-                        defender::Query::Preferences
-                    };
-                    cancel = process::cancel_token();
-                    let c = cancel.clone();
-                    job = Some(tokio::spawn(async move { defender::run(query, c).await }));
-                    s.status = "Reading local Defender data (60-second timeout)...".into();
-                }
-                Page::Packages => {
-                    if let Some(p) = s.packages.get(s.cursor) {
-                        s.viewer(serde_json::to_string_pretty(p)?);
+            KeyCode::Enter => {
+                match s.page {
+                    Page::CheckMenu => match s.cursor {
+                        0 => s.check.region = s.check.region.next(),
+                        1 => {
+                            s.check.count = match s.check.count {
+                                3 => 10,
+                                10 => 30,
+                                _ => 3,
+                            }
+                        }
+                        2 => {
+                            let o = s.check.clone();
+                            cancel = process::cancel_token();
+                            let c = cancel.clone();
+                            let tx = progress_tx.clone();
+                            job = Some(tokio::spawn(async move {
+                                let report = crate::mde_check::run(&o, c, move |s| {
+                                    let _ = tx.send(s);
+                                })
+                                .await?;
+                                Ok(crate::mde_check::text(&report))
+                            }));
+                            s.status="Starting curated diagnostic paths; no sensor configuration changes...".into();
+                        }
+                        _ => s.viewer(format!(
+                            "{}\n\n{}",
+                            crate::mde_check::LIMITS,
+                            crate::mde_check::COMPARE
+                        )),
+                    },
+                    Page::Menu => {
+                        let query = if s.cursor == 0 {
+                            defender::Query::ComputerStatus
+                        } else {
+                            defender::Query::Preferences
+                        };
+                        cancel = process::cancel_token();
+                        let c = cancel.clone();
+                        job = Some(tokio::spawn(async move { defender::run(query, c).await }));
+                        s.status = "Reading local Defender data (60-second timeout)...".into();
                     }
+                    Page::Packages => {
+                        if let Some(p) = s.packages.get(s.cursor) {
+                            s.viewer(serde_json::to_string_pretty(p)?);
+                        }
+                    }
+                    _ => {}
                 }
-                _ => {}
-            },
+            }
             KeyCode::Char(c) => match s.page {
                 Page::Packages => match c.to_ascii_lowercase() {
                     'c' => {
@@ -278,6 +331,14 @@ pub async fn run(section: Section) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn mde_menu_is_separate_and_eu_by_default() {
+        let s = State::new(Section::MdeCheck);
+        assert!(s.page == Page::CheckMenu);
+        assert_eq!(s.rows().len(), 4);
+        assert!(s.rows()[0].contains("EU"));
+        assert!(s.rows()[2].contains("Standard + Streamlined"));
+    }
     #[test]
     fn defender_menu() {
         let s = State::new(Section::Defender);
