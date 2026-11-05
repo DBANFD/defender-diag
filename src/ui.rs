@@ -30,6 +30,7 @@ enum Page {
     Results,
 }
 struct App {
+    workbench: Option<crate::workbench::Section>,
     analyzer: Option<crate::analyzer::AnalyzerReport>,
     analyzer_run: bool,
     analyzer_import: Option<JoinHandle<Result<crate::analyzer::AnalyzerReport>>>,
@@ -55,6 +56,7 @@ struct App {
 impl App {
     fn new() -> Self {
         Self {
+            workbench: None,
             analyzer: None,
             analyzer_run: false,
             analyzer_import: None,
@@ -101,8 +103,8 @@ impl App {
     }
     fn count(&self) -> usize {
         match self.page {
-            Page::Home => 7,
-            Page::AnalyzerMenu => 3,
+            Page::Home => 10,
+            Page::AnalyzerMenu => 4,
             Page::AnalyzerResults => self.analyzer_rows().len(),
             Page::Feeds => self.feeds.len(),
             Page::Targets => {
@@ -273,7 +275,7 @@ impl App {
                         self.status = "Importing structured analyzer evidence...".into();
                         Ok(())
                     } else if field == 99 {
-                        crate::cli::hostname(&value).map(|host| {
+                        crate::scope::validate(&value).map(|host| {
                             if self.page == Page::Home {
                                 self.feed = None;
                                 self.set_hosts(vec![host]);
@@ -426,6 +428,18 @@ impl App {
             }
             KeyCode::Enter => match self.page {
                 Page::Home => match self.cursor {
+                    8 => {
+                        self.feed = None;
+                        self.set_hosts(vec![
+                            "management.azure.com".into(),
+                            "portal.azure.com".into(),
+                        ]);
+                    }
+                    9 => {
+                        self.feed = None;
+                        self.set_hosts(vec!["enterpriseenrollment.manage.microsoft.com".into()]);
+                    }
+                    7 => self.workbench = Some(crate::workbench::Section::Defender),
                     0 | 1 => {
                         self.filter = if self.cursor == 0 {
                             "msdefender".into()
@@ -464,6 +478,7 @@ impl App {
                     }
                 },
                 Page::AnalyzerMenu => match self.cursor {
+                    3 => self.workbench = Some(crate::workbench::Section::Packages),
                     0 => self.analyzer_run = true,
                     1 => self.input = Some((100, String::new())),
                     _ => {
@@ -611,27 +626,24 @@ fn draw(f: &mut Frame, a: &App) {
             " Select endpoint source ".into(),
             vec![
                 "Microsoft Defender — regional / service URL feeds".into(),
-                "Browse ALL service URL feeds (filter by provider / region)".into(),
+                "Browse All Microsoft service URL feeds (filter by provider / region)".into(),
                 "Quick example targets — MDE West Europe + Entra".into(),
                 "Microsoft Entra ID — login.microsoftonline.com".into(),
-                "Custom / SentinelOne tenant management hostname".into(),
+                "Custom Microsoft service hostname".into(),
                 "MDE Client Analyzer — run / import / view findings".into(),
                 "Regional comparison — EDR regions + MDAV + control hosts".into(),
+                "Defender status — Get-MpComputerStatus / Get-MpPreference".into(),
+                "Microsoft Azure — management / portal sample targets".into(),
+                "Microsoft Intune — enrollment sample target".into(),
             ],
         ),
         Page::AnalyzerMenu => (
             " MDE Client Analyzer ".into(),
             vec![
-                format!(
-                    "Run Microsoft default diagnostics [{}] — requires administrator; license prompt preserved",
-                    if crate::analyzer::bundled() {
-                        "bundled preview"
-                    } else {
-                        "not bundled in this build"
-                    }
-                ),
+                "Run selected Microsoft package - requires administrator; license prompts preserved".into(),
                 "Import existing result ZIP / MDEClientAnalyzer.xml / extracted folder".into(),
                 "View loaded analyzer findings".into(),
+                "Manage packages — standard / preview / import / select / pin".into(),
             ],
         ),
         Page::Feeds => (
@@ -1037,6 +1049,14 @@ pub async fn run() -> Result<bool> {
     let _restore = Restore;
     let mut app = App::new();
     loop {
+        if let Some(section) = app.workbench.take() {
+            ratatui::restore();
+            let result = crate::workbench::run(section).await;
+            terminal = ratatui::try_init()?;
+            if let Err(e) = result {
+                app.status = format!("Diagnostics: {e}");
+            }
+        }
         if app.analyzer_run {
             app.analyzer_run = false;
             ratatui::restore();
@@ -1084,7 +1104,7 @@ mod tests {
         a.cursor = 5;
         a.key(KeyCode::Enter);
         assert!(a.page == Page::AnalyzerMenu);
-        assert_eq!(a.count(), 3);
+        assert_eq!(a.count(), 4);
         let report = crate::analyzer::parse_xml(
             include_bytes!("../tests/fixtures/analyzer-synthetic.xml"),
             "synthetic",
@@ -1106,6 +1126,33 @@ mod tests {
         assert!(text.contains("ANALYZER EVIDENCE"));
         assert!(text.contains("SYNTH-001"));
         assert!(!text.contains("DIRECT CONNECTIONS"));
+    }
+    #[test]
+    fn defender_home_entry_and_remaining_targets() {
+        let mut a = App::new();
+        assert_eq!(a.count(), 10);
+        let mut t = ratatui::Terminal::new(ratatui::backend::TestBackend::new(140, 40)).unwrap();
+        t.draw(|f| draw(f, &a)).unwrap();
+        let text: String = t
+            .backend()
+            .buffer()
+            .content
+            .iter()
+            .map(|c| c.symbol())
+            .collect();
+        assert!(text.contains("Defender status"));
+        assert!(!text.contains("Intune policy investigation"));
+        assert!(!text.contains("Windows evidence collections"));
+        a.cursor = 7;
+        a.key(KeyCode::Enter);
+        assert!(matches!(
+            a.workbench,
+            Some(crate::workbench::Section::Defender)
+        ));
+        a.workbench = None;
+        a.cursor = 8;
+        a.key(KeyCode::Enter);
+        assert!(a.hosts.contains(&"management.azure.com".into()));
     }
     #[test]
     fn selection_settings_and_rendering() {

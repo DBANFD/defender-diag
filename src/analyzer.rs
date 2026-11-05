@@ -13,7 +13,6 @@ use std::{
 };
 const XML_LIMIT: u64 = 16 * 1024 * 1024;
 const ARCHIVE_LIMIT: u64 = 512 * 1024 * 1024;
-const BUNDLE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/analyzer.zip"));
 #[derive(Debug, Clone, Serialize)]
 pub struct Finding {
     pub kind: String,
@@ -36,9 +35,6 @@ pub struct AnalyzerReport {
     pub findings: Vec<Finding>,
     pub severity_counts: BTreeMap<String, usize>,
     pub notes: Vec<String>,
-}
-pub fn bundled() -> bool {
-    !BUNDLE.is_empty()
 }
 pub fn clean(s: &str) -> String {
     static ANCHOR: OnceLock<Regex> = OnceLock::new();
@@ -373,17 +369,25 @@ fn safe_member(name: &str) -> Result<PathBuf> {
         normalized.split('/').all(|p| p != ".." && p != "."),
         "Unsafe ZIP traversal"
     );
+    for part in normalized.split('/').filter(|p| !p.is_empty()) {
+        let stem = part.split('.').next().unwrap_or("").to_ascii_uppercase();
+        ensure!(
+            !part.ends_with(['.', ' '])
+                && !matches!(stem.as_str(), "CON" | "PRN" | "AUX" | "NUL")
+                && !((stem.starts_with("COM") || stem.starts_with("LPT"))
+                    && stem.len() == 4
+                    && matches!(stem.as_bytes()[3], b'1'..=b'9')),
+            "Unsafe Windows ZIP filename"
+        );
+    }
     Ok(PathBuf::from(normalized))
 }
 pub fn prepare(package: Option<&Path>, parent: &Path) -> Result<Prepared> {
     let bytes = if let Some(path) = package {
         read_limited(fs::File::open(path)?, 64 * 1024 * 1024)?
     } else {
-        ensure!(
-            bundled(),
-            "This build has no embedded analyzer. Supply --package with the Microsoft ZIP."
-        );
-        BUNDLE.to_vec()
+        let path = crate::packages::selected(&crate::packages::store())?;
+        read_limited(fs::File::open(path)?, 64 * 1024 * 1024)?
     };
     ensure!(
         bytes.len() <= 64 * 1024 * 1024,
@@ -463,7 +467,7 @@ pub fn prepare(package: Option<&Path>, parent: &Path) -> Result<Prepared> {
     })
 }
 #[cfg(windows)]
-fn powershell() -> Result<PathBuf> {
+pub fn powershell() -> Result<PathBuf> {
     let system = std::env::var_os("SystemRoot").context("SystemRoot is unavailable")?;
     let root = PathBuf::from(system);
     let sysnative = root.join("Sysnative/WindowsPowerShell/v1.0/powershell.exe");
@@ -477,15 +481,23 @@ fn powershell() -> Result<PathBuf> {
 pub fn run(package: Option<&Path>, parent: &Path) -> Result<AnalyzerReport> {
     use std::process::Command;
     let ps = powershell()?;
-    let status=Command::new(&ps).args(["-NoProfile","-NonInteractive","-Command",
+    let status=Command::new(&ps).env_remove("PSModulePath").args(["-NoProfile","-NonInteractive","-Command",
         "if (([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { exit 0 } else { exit 65 }"]).status()?;
     ensure!(
         status.success(),
         "Analyzer collection requires administrator rights. Close and Run as administrator; import works without elevation."
     );
+    let selected;
+    let package = if package.is_some() {
+        package
+    } else {
+        selected = crate::packages::selected(&crate::packages::store())?;
+        Some(selected.as_path())
+    };
     let prepared = prepare(package, parent)?;
+    crate::packages::verify(&prepared.script)?;
     // Path passes via environment data, never interpolated into PowerShell program text.
-    let verify=Command::new(&ps).env("DEFENDER_DIAG_SCRIPT",&prepared.script).args(["-NoProfile","-NonInteractive","-Command",
+    let verify=Command::new(&ps).env_remove("PSModulePath").env("DEFENDER_DIAG_SCRIPT",&prepared.script).args(["-NoProfile","-NonInteractive","-Command",
         "$s=Get-AuthenticodeSignature -LiteralPath $env:DEFENDER_DIAG_SCRIPT; if ($s.Status -eq 'Valid' -and $s.SignerCertificate.Subject -match 'O=Microsoft Corporation') { exit 0 } else { Write-Error 'Microsoft analyzer signature validation failed'; exit 66 }"]).status()?;
     ensure!(
         verify.success(),
@@ -502,6 +514,7 @@ pub fn run(package: Option<&Path>, parent: &Path) -> Result<AnalyzerReport> {
         .context("Analyzer package root missing")?;
     // AllSigned; no remote, crash, reboot, memory-dump or tracing switches.
     let status = Command::new(&ps)
+        .env_remove("PSModulePath")
         .args(["-NoProfile", "-ExecutionPolicy", "AllSigned", "-File"])
         .arg(&prepared.script)
         .arg("-outputDir")
@@ -511,6 +524,18 @@ pub fn run(package: Option<&Path>, parent: &Path) -> Result<AnalyzerReport> {
     let result = root.join("MDEClientAnalyzerResult");
     let mut report=import(&result).with_context(||format!("Analyzer exited {:?}; no readable structured results. Inspect {}. License decline or incomplete collection is not success.",status.code(),prepared.run_dir.display()))?;
     report.run_exit_code = status.code();
+    if let Ok(packages) = crate::packages::list(&crate::packages::store()) {
+        for p in packages.into_iter().filter(|p| p.sha256 == prepared.sha256) {
+            report.notes.push(format!(
+                "Package {} | channel {} | source {} | version {} | acquired {}",
+                p.id,
+                p.channel.name(),
+                p.source,
+                p.script_version.as_deref().unwrap_or("not exposed"),
+                p.acquired_at
+            ));
+        }
+    }
     report.notes.push(format!("Collected with Microsoft analyzer package SHA256 {}. Process exit {:?}; findings are not a health guarantee.",prepared.sha256,status.code()));
     if !status.success() {
         report

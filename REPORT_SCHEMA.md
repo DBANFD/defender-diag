@@ -44,3 +44,10 @@ Strings are plain text with common credential patterns redacted. Findings retain
 
 ## Incremental journal schema 1
 Optional CLI --journal / automatic UI results/attempts-*.jsonl writes one envelope per line: journal_schema=1, kind=start|dns|attempt|end, data=object. Start includes timestamp, tool version, hosts, effective mode/count/interval/stage timeout/concurrency. DNS and attempt payloads use the existing types above. End records completion time and attempt count. Missing end is an incomplete run; ignore an incomplete trailing line after a crash. No final success percentage is inferred from an unfinished journal. Files use create-new and flush every record.
+
+## Additional schemas (0.6.0)
+Connectivity schema 2 and Analyzer import schema 1 remain compatible. Feed snapshots add classification, a hostname-to-purpose/source map.
+
+- Package metadata schema 1: id (channel-SHA256), channel, source, redirects, acquired_at, sha256, optional script_version, signatures. Selection records are append-only {id,pinned}. Hashes are content identity, not publisher authentication.
+
+Defender status is display-only command output, not a connectivity report schema. It includes command, query time and pretty-printed values; no automatic file export.

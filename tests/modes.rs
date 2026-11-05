@@ -141,3 +141,13 @@ async fn tcp_mode_does_not_attempt_tls() {
             .all(|a| a.success && a.tcp_ms.is_some() && a.tls_ms.is_none())
     );
 }
+
+#[test]
+fn removed_investigations_are_not_commands() {
+    for command in ["intune", "collect", "firewall"] {
+        assert!(Cli::try_parse_from(["d", command]).is_err());
+    }
+    for query in ["computer-status", "preferences"] {
+        assert!(Cli::try_parse_from(["d", "defender", query]).is_ok());
+    }
+}

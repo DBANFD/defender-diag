@@ -1,7 +1,7 @@
 # Category guide and sustained testing
 
 ## Selecting a URL category
-Feed names now expand provider, region and service codes, and the highlighted feed has a scope/purpose panel. Search accepts friendly names such as Europe as well as msdefender/eu.
+The 155 Microsoft feed names expand service, region and category codes, and the highlighted feed has a scope/purpose panel. Search accepts friendly names such as Europe as well as msdefender/eu.
 
 - All scopes / All service categories: broad combined published feed, including scopes that may not apply to your tenant.
 - EU (Europe): European service subset; also review Worldwide shared dependencies.
@@ -59,3 +59,5 @@ Full JSON/CSV and summaries are still produced after a successful run completion
 - Explicit direct-versus-proxy comparisons.
 - Total per-probe deadlines and fixed-duration scheduling.
 - Per-stage failure trends and consecutive-failure streaks.
+
+For Analyzer packages and local Defender queries, see [ANALYZER.md](ANALYZER.md) and [DEFENDER_STATUS.md](DEFENDER_STATUS.md). Tests use anonymous fixtures; live reads are operator-invoked.

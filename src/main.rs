@@ -23,9 +23,24 @@ async fn execute() -> anyhow::Result<bool> {
     };
     let mut source_feed = None;
     let (hosts, options) = match command {
+        Command::Defender { query } => {
+            let cancel = defender_diag::process::cancel_token();
+            let signal = cancel.clone();
+            let watcher = tokio::spawn(async move {
+                let _ = tokio::signal::ctrl_c().await;
+                signal.store(true, std::sync::atomic::Ordering::Relaxed);
+            });
+            let result = defender_diag::defender::run(query, cancel).await;
+            watcher.abort();
+            println!("{}", result?);
+            return Ok(true);
+        }
         Command::Analyzer { action } => {
             use defender_diag::{analyzer, cli::AnalyzerCommand};
             match action {
+                AnalyzerCommand::Packages { action } => {
+                    defender_diag::packages::execute(action).await?;
+                }
                 AnalyzerCommand::Import { path, output } => {
                     let report = analyzer::import(&path)?;
                     analyzer::console(&report);
@@ -78,7 +93,10 @@ async fn execute() -> anyhow::Result<bool> {
             source_feed = Some(snapshot);
             (hosts, options)
         }
-        Command::Test { host, options } => (vec![host], options),
+        Command::Test { host, options } => (
+            vec![defender_diag::scope::validate(&host).map_err(anyhow::Error::msg)?],
+            options,
+        ),
         Command::Profile {
             name,
             options,

@@ -13,3 +13,10 @@ pub mod statistics;
 pub mod tcp;
 pub mod tls;
 pub mod ui;
+
+pub mod scope;
+
+pub mod defender;
+pub mod packages;
+pub mod process;
+pub mod workbench;
