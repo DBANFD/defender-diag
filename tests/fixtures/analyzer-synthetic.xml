@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDEResults>
+  <general>
+    <scriptVersion displayName="Script Version"><value>SYNTHETIC FIXTURE - NOT A DEVICE RESULT</value></scriptVersion>
+    <scriptRunTime displayName="Script RunTime"><value>2026-01-01T00:00:00Z (synthetic)</value></scriptRunTime>
+  </general>
+  <devInfo><deviceName displayName="Device Host Name"><value>SYNTHETIC-LAB</value></deviceName></devInfo>
+  <EDRCompInfo>
+    <SenseServiceStatus displayName="Sense Service"><value>Running</value><alert>None</alert></SenseServiceStatus>
+    <SimplifiedConnectivity displayName="Streamlined Connectivity"><value>YES</value></SimplifiedConnectivity>
+  </EDRCompInfo>
+  <AVCompInfo><DefenderState displayName="Defender AV mode"><value>Passive (synthetic)</value></DefenderState></AVCompInfo>
+  <events>
+    <event id="SYNTH-001">
+      <severity>Error</severity><category>Connectivity</category><check>TLS fixture</check>
+      <checkresult>Synthetic TLS failure; no real connection was attempted.</checkresult>
+      <guidance>Inspect certificate validation and proxy settings. &lt;a href="https://learn.microsoft.com/en-us/defender-endpoint/verify-connectivity"&gt;Microsoft guidance&lt;/a&gt;</guidance>
+    </event>
+    <event id="SYNTH-002">
+      <severity>Warning</severity><category>AV</category><check>Mode fixture</check>
+      <checkresult>Passive mode requires context; this fixture does not diagnose a device.</checkresult>
+      <guidance>Confirm the intended antivirus architecture.</guidance>
+    </event>
+    <event id="SYNTH-003">
+      <severity>Informational</severity><category>Other</category><check>Non-relevant fixture</check>
+      <checkresult>Used to validate the relevant/all filter.</checkresult><guidance />
+    </event>
+  </events>
+</MDEResults>
