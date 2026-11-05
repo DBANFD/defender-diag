@@ -1,6 +1,6 @@
 //! Dashboard pages for runtime packages, collection plans and evidence investigation.
 use crate::{collection, graph, packages};
-use anyhow::{Context, Result};
+use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
     layout::{Constraint, Layout},
@@ -13,7 +13,6 @@ pub enum Section {
     Packages,
     Collections,
     Intune,
-    Firewall,
 }
 #[derive(Clone, Copy, PartialEq)]
 enum Page {
@@ -22,7 +21,6 @@ enum Page {
     Plan,
     Graph,
     Viewer,
-    Firewall,
 }
 struct State {
     page: Page,
@@ -35,10 +33,7 @@ struct State {
     packages: Vec<packages::Package>,
     collection: collection::Options,
     graph: graph::Options,
-    firewall: Option<serde_json::Value>,
     search: String,
-    direction: Option<String>,
-    action: Option<String>,
 }
 impl State {
     fn new(section: Section) -> Self {
@@ -46,7 +41,6 @@ impl State {
             page: match section {
                 Section::Packages => Page::Packages,
                 Section::Intune => Page::Graph,
-                Section::Firewall => Page::Firewall,
                 _ => Page::Menu,
             },
             cursor: 0,
@@ -68,10 +62,7 @@ impl State {
                 reports: false,
                 output_dir: "results/intune".into(),
             },
-            firewall: None,
             search: String::new(),
-            direction: None,
-            action: None,
         }
     }
     fn rows(&self) -> Vec<String> {
@@ -81,7 +72,7 @@ impl State {
                 "Connectivity",
                 "Defender onboarding and protection",
                 "Intune / MDM local policy",
-                "Firewall",
+                "Firewall events and network",
                 "Comprehensive standard collection",
             ]
             .iter()
@@ -129,20 +120,6 @@ impl State {
         self.scroll = 0;
         self.page = Page::Viewer;
     }
-    fn firewall_view(&self) -> Result<serde_json::Value> {
-        let mut v = self
-            .firewall
-            .clone()
-            .context("Import a Firewall collection's firewall.txt first (i)")?;
-        v["rules"] = crate::firewall::filter(
-            &v,
-            &self.search,
-            self.direction.as_deref(),
-            self.action.as_deref(),
-        )
-        .into();
-        Ok(v)
-    }
     fn input_done(&mut self, key: &str, value: &str) -> Result<()> {
         let value = value.trim().trim_matches('"');
         match key {
@@ -171,12 +148,6 @@ impl State {
                 }
             }
             "graph-output" => self.graph.output_dir = value.into(),
-            "firewall-path" => {
-                let bytes = std::fs::read(value)?;
-                anyhow::ensure!(bytes.len() <= 64 * 1024 * 1024, "Snapshot too large");
-                self.firewall = Some(crate::firewall::parse(&bytes)?);
-                self.scroll = 0;
-            }
             "search" => {
                 self.search = value.into();
                 self.scroll = 0;
@@ -238,11 +209,11 @@ pub async fn run(section: Section) -> Result<()> {
         }
         terminal.draw(|f|{
             let area=Layout::vertical([Constraint::Length(3),Constraint::Min(4),Constraint::Length(6)]).split(f.area());
-            let title=match s.page{Page::Menu=>"Windows collections: choose a preset to review scope",Page::Packages=>"Analyzer packages: operator-owned; never embedded",Page::Plan=>"Collection scope: review before R starts",Page::Graph=>"Intune: local evidence or optional Graph authentication",Page::Firewall=>"Effective Firewall: ActiveStore inventory, not a packet verdict",Page::Viewer=>"Evidence / coverage (raw values may identify a device)"};
+            let title=match s.page{Page::Menu=>"Windows collections: choose a preset to review scope",Page::Packages=>"Analyzer packages: operator-owned; never embedded",Page::Plan=>"Collection scope: review before R starts",Page::Graph=>"Intune: local evidence or optional Graph authentication",Page::Viewer=>"Evidence / coverage (raw values may identify a device)"};
             f.render_widget(Paragraph::new(title).style(Style::default().fg(Color::Cyan)).block(Block::default().borders(Borders::ALL)),area[0]);
             if matches!(s.page,Page::Menu|Page::Packages|Page::Graph){let rows=s.rows();let mut state=ListState::default().with_selected(Some(s.cursor));f.render_stateful_widget(List::new(rows).highlight_symbol("> ").highlight_style(Style::default().fg(Color::Cyan)).block(Block::default().borders(Borders::ALL)),area[1],&mut state);}
-            else {let text=match s.page{Page::Plan=>collection::plan(&s.collection).map(|p|plan_text(&p)).unwrap_or_else(|e|e.to_string()),Page::Firewall=>s.firewall_view().and_then(|v|Ok(serde_json::to_string_pretty(&v)?)).unwrap_or_else(|e|e.to_string()),_=>if s.search.is_empty(){s.text.clone()}else{s.text.lines().filter(|l|l.to_lowercase().contains(&s.search.to_lowercase())).collect::<Vec<_>>().join("\n")}};f.render_widget(Paragraph::new(crate::analyzer::clean(&text)).wrap(Wrap{trim:false}).scroll((s.scroll,0)).block(Block::default().borders(Borders::ALL)),area[1]);}
-            let help=if job.is_some(){if s.page==Page::Packages {"Package acquisition/validation in progress; wait before changing selection."} else {"Esc cancels; wait for partial manifest. No new task while running."}}else{match s.page{Page::Packages=>"C channel | D download/update | I import ZIP | S select | P pin | U unpin | Enter metadata | Esc back",Page::Plan=>"R run | H hours M size T timeout E events U end O output | N native MDM report | PgUp/PgDn | Esc back",Page::Graph=>"Arrows/Enter edit | START begins sign-in | Local-only needs no cloud access | Esc back",Page::Firewall=>"I import firewall.txt | / search | 1 inbound 2 outbound 3 block 4 allow 0 reset | S JSON/CSV | PgDn | Esc back",Page::Viewer=>"Arrows/PgUp/PgDn scroll | / search | Esc back",Page::Menu=>"Arrows/Enter preview | Esc return"}};
+            else {let text=match s.page{Page::Plan=>collection::plan(&s.collection).map(|p|plan_text(&p)).unwrap_or_else(|e|e.to_string()),_=>if s.search.is_empty(){s.text.clone()}else{s.text.lines().filter(|l|l.to_lowercase().contains(&s.search.to_lowercase())).collect::<Vec<_>>().join("\n")}};f.render_widget(Paragraph::new(crate::analyzer::clean(&text)).wrap(Wrap{trim:false}).scroll((s.scroll,0)).block(Block::default().borders(Borders::ALL)),area[1]);}
+            let help=if job.is_some(){if s.page==Page::Packages {"Package acquisition/validation in progress; wait before changing selection."} else {"Esc cancels; wait for partial manifest. No new task while running."}}else{match s.page{Page::Packages=>"C channel | D download/update | I import ZIP | S select | P pin | U unpin | Enter metadata | Esc back",Page::Plan=>"R run | H hours M size T timeout E events U end O output | N native MDM report | PgUp/PgDn | Esc back",Page::Graph=>"Arrows/Enter edit | START begins sign-in | Local-only needs no cloud access | Esc back",Page::Viewer=>"Arrows/PgUp/PgDn scroll | / search | Esc back",Page::Menu=>"Arrows/Enter preview | Esc return"}};
             let input=s.input.as_ref().map(|(k,v)|format!("{k}: {v}_ [Enter accept, Esc cancel]")).unwrap_or_default();
             let package_note=if s.page==Page::Packages{let selected=packages::selection(&packages::store()).ok().flatten().map(|x|format!("{} pinned={}",x.id,x.pinned)).unwrap_or_else(||"none".into());format!("Channel {} | selected {selected}",s.channel.name())}else{String::new()};
             f.render_widget(Paragraph::new(format!("{help}\n{input}{package_note}\n{}",s.status)).wrap(Wrap{trim:true}).block(Block::default().borders(Borders::ALL)),area[2]);
@@ -306,7 +277,6 @@ pub async fn run(section: Section) -> Result<()> {
                     s.page = match section {
                         Section::Packages => Page::Packages,
                         Section::Intune => Page::Graph,
-                        Section::Firewall => Page::Firewall,
                         _ => Page::Menu,
                     };
                     s.cursor = 0;
@@ -469,36 +439,6 @@ pub async fn run(section: Section) -> Result<()> {
                             _ => "output",
                         };
                         s.input = Some((field.into(), String::new()));
-                    }
-                    _ => {}
-                },
-                Page::Firewall => match c.to_ascii_lowercase() {
-                    'i' => s.input = Some(("firewall-path".into(), String::new())),
-                    '/' => s.input = Some(("search".into(), s.search.clone())),
-                    '1' => s.direction = Some("Inbound".into()),
-                    '2' => s.direction = Some("Outbound".into()),
-                    '3' => s.action = Some("Block".into()),
-                    '4' => s.action = Some("Allow".into()),
-                    '0' => {
-                        s.direction = None;
-                        s.action = None;
-                        s.search.clear();
-                    }
-                    's' => {
-                        let v = s.firewall_view();
-                        s.status = match v.and_then(|v| {
-                            let d =
-                                collection::new_dir(&PathBuf::from("results"), "firewall-export")?;
-                            crate::firewall::export(
-                                &v,
-                                Some(&d.join("firewall.json")),
-                                Some(&d.join("rules.csv")),
-                            )?;
-                            Ok(format!("Saved {}", d.display()))
-                        }) {
-                            Ok(s) => s,
-                            Err(e) => e.to_string(),
-                        };
                     }
                     _ => {}
                 },

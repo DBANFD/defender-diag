@@ -5,7 +5,7 @@
 - Microsoft-only feeds and custom-target classification, preserving Microsoft regions/clouds and documented dependencies.
 - Runtime standard/preview Analyzer download/import, version selection/pinning and redirect/signature validation. Public build-time embedding removed.
 - Read-only Windows collection presets with scope review, time/size limits, cancellation, per-collector results, manifests and private support ZIPs.
-- ActiveStore Firewall rules and filters, resultant profiles, separate local configuration and searchable JSON/CSV export.
+- Firewall event logs and network/proxy evidence. Effective rule collection, dashboard viewer and CLI rule search/export were removed before release.
 - Local Intune evidence plus optional Graph login, exact device identity, policy/assignment inventory, beta families and bounded compliance reporting. Explicit partial-coverage table.
 - Extended anonymous offline fixtures; live Graph and elevated Analyzer pilots remain pending.
 

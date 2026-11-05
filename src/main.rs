@@ -74,26 +74,6 @@ async fn execute() -> anyhow::Result<bool> {
             }
             return Ok(true);
         }
-        Command::Firewall {
-            path,
-            search,
-            direction,
-            action,
-            output,
-            csv,
-        } => {
-            let mut v = defender_diag::firewall::parse(&std::fs::read(path)?)?;
-            v["rules"] = defender_diag::firewall::filter(
-                &v,
-                &search,
-                direction.as_deref(),
-                action.as_deref(),
-            )
-            .into();
-            defender_diag::firewall::export(&v, output.as_deref(), csv.as_deref())?;
-            println!("{}", serde_json::to_string_pretty(&v)?);
-            return Ok(true);
-        }
         Command::Analyzer { action } => {
             use defender_diag::{analyzer, cli::AnalyzerCommand};
             match action {

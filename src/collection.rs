@@ -111,7 +111,7 @@ pub fn plan(o: &Options) -> Result<Plan> {
             "mdm-effective",
             "gpresult",
         ],
-        Preset::Firewall => &["firewall", "events-firewall", "network"],
+        Preset::Firewall => &["events-firewall", "network"],
         Preset::Comprehensive => &[
             "health",
             "preferences",
@@ -123,7 +123,6 @@ pub fn plan(o: &Options) -> Result<Plan> {
             "events-mdm",
             "events-aad",
             "mdm-effective",
-            "firewall",
             "events-firewall",
         ],
     };

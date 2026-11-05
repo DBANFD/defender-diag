@@ -17,7 +17,6 @@ pub mod ui;
 pub mod scope;
 
 pub mod collection;
-pub mod firewall;
 pub mod graph;
 pub mod packages;
 pub mod workbench;

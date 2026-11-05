@@ -20,7 +20,7 @@ Without --run the CLI prints the exact plan only. Ctrl+C requests cancellation. 
 | Connectivity | IP/DNS/WinHTTP/current-user proxy snapshot; SENSE and Defender operational events |
 | Defender | Quick + selected AV preferences/exclusions, Defender/SENSE events, computer gpresult /Z |
 | Intune | dsregcmd /status; MDM Admin and AAD Operational events; PolicyManager current device-area values; computer gpresult /Z |
-| Firewall | ActiveStore rules/associated filters/profile settings, PersistentStore configured rule summary, network profiles; firewall events; network snapshot |
+| Firewall | Firewall events; network/proxy snapshot |
 | Comprehensive | Union of the standard collectors above |
 
 --mdm-report separately opts into MDMDiagnosticsTool DeviceEnrollment;DeviceProvisioning;Autopilot output. It can contain existing ETLs and registry evidence. No preset starts packet capture, performance tracing or memory dumps. Those intensive collectors are not implemented in this release.
@@ -43,16 +43,8 @@ Each run gets a new directory restricted to the current Windows SID and SYSTEM (
 
 Only shareable-summary.json excludes raw values, identifiers, paths, timestamps and arbitrary error text. Raw reports, manifests and ZIPs may include sensitive tenant/device/user configuration, exclusions, certificate and proxy information. Arbitrary diagnostic content cannot be guaranteed anonymous automatically. Cancellation/timeout preserves completed collectors; a process crash can leave per-collector results without a final manifest.
 
-## Effective Firewall
-Collect with the Firewall preset, then open the snapshot:
-~~~powershell
-defender-diag firewall C:\Private\collection\firewall.txt --search 443 --direction outbound --action block --output filtered.json --csv filtered.csv
-~~~
-Dashboard: Effective Windows Firewall > I imports firewall.txt. / searches; 1/2 filter inbound/outbound; 3/4 filter block/allow; 0 resets; S exports JSON and CSV.
-
-ActiveStore is queried with TracePolicyStore. Rules include direction/action/enabled/profiles/source plus port, address, application, service, interface, interface-type and security filters. Active profile defaults and local merge settings, network profiles, and separately labelled PersistentStore configuration are retained. Null/empty source remains unknown. CSV filters are JSON-valued cells; formula-leading cells are neutralized. Exports use create-new.
-
-This inventory is not a full packet verdict. It does not reconstruct every Windows Filtering Platform provider, third-party filter, dynamic connection state, IPsec negotiation or network-device policy, and cannot prove packets passed.
+## Firewall scope
+The Firewall preset collects event logs and network/proxy configuration only. Effective rules, profile policy inventory, rule search and rule exports are not included. Event evidence is not a complete packet verdict or proof that traffic passed.
 
 ## Supported methods
 Reviewed 2026-11-05:
@@ -60,4 +52,3 @@ Reviewed 2026-11-05:
 - [dsregcmd interpretation](https://learn.microsoft.com/en-us/entra/identity/devices/troubleshoot-device-dsregcmd)
 - [gpresult](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/gpresult)
 - [MDM diagnostics](https://learn.microsoft.com/en-us/windows/client-management/mdm-collect-logs)
-- [Get-NetFirewallRule and associated filters](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallrule)

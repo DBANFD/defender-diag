@@ -23,20 +23,6 @@ pub enum Command {
         #[command(flatten)]
         options: crate::collection::Options,
     },
-    /// Search/export an ActiveStore snapshot from a Firewall collection.
-    Firewall {
-        path: PathBuf,
-        #[arg(long, default_value = "")]
-        search: String,
-        #[arg(long)]
-        direction: Option<String>,
-        #[arg(long)]
-        action: Option<String>,
-        #[arg(long)]
-        output: Option<PathBuf>,
-        #[arg(long)]
-        csv: Option<PathBuf>,
-    },
     /// Run a selected Windows Analyzer package or import its structured results.
     Analyzer {
         #[command(subcommand)]

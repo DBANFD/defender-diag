@@ -12,7 +12,7 @@ Written in Rust. Current version: **0.6.0**.
 - JSON and CSV reports, plus an incremental JSONL journal for longer runs.
 - Runtime MDE Client Analyzer packages: standard/preview, offline import, versions and pinning.
 - Windows collection presets with scope previews, bounded evidence, cancellation, manifests and private support ZIPs.
-- Active Windows Firewall rules/profile settings with associated filters, search and JSON/CSV export.
+- Windows Firewall event logs and network/proxy evidence.
 - Local Intune evidence and optional read-only Graph enrichment with explicit coverage.
 
 ## Build and run
@@ -54,7 +54,7 @@ The examples contact the named public services. Custom targets belong in your lo
 .\defender-diag.exe intune coverage --beta
 ~~~
 
-Collection commands show scope; without --run they only preview. Use the dashboard for package selection/pinning, preset review, Intune investigation and Firewall search. Raw bundles stay local and private. Shareable structural summaries are separate; arbitrary diagnostic content cannot be guaranteed anonymous automatically.
+Collection commands show scope; without --run they only preview. Use the dashboard for package selection/pinning, preset review, Intune investigation. Raw bundles stay local and private. Shareable structural summaries are separate; arbitrary diagnostic content cannot be guaranteed anonymous automatically.
 
 ## Reading the results
 
@@ -72,7 +72,7 @@ Connections are direct; the tool does not reproduce the sensor's proxy context. 
 | [Client Analyzer](ANALYZER.md) | Importing reports and running a separately supplied Windows package |
 | [Report schema](REPORT_SCHEMA.md) | JSON, CSV, and Analyzer output fields |
 | [Microsoft scope](MICROSOFT_SCOPE.md) | Provider enforcement, endpoint registry and dependencies |
-| [Collections and Firewall](COLLECTIONS.md) | Exact presets, limits, privacy and effective policy view |
+| [Collections and Firewall](COLLECTIONS.md) | Exact presets, limits, privacy and Firewall event coverage |
 | [Intune investigation](INTUNE.md) | Local evidence, consent, identity resolution and API coverage |
 | [Changelog](CHANGELOG.md) | Changes by version |
 

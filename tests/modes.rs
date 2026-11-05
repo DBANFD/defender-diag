@@ -141,3 +141,19 @@ async fn tcp_mode_does_not_attempt_tls() {
             .all(|a| a.success && a.tcp_ms.is_some() && a.tls_ms.is_none())
     );
 }
+
+#[test]
+fn firewall_rule_feature_is_removed_but_events_remain() {
+    use defender_diag::collection::{Options, Preset, plan};
+    assert!(Cli::try_parse_from(["d", "firewall", "snapshot.json"]).is_err());
+    for preset in [Preset::Firewall, Preset::Comprehensive] {
+        let p = plan(&Options {
+            preset,
+            ..Options::default()
+        })
+        .unwrap();
+        assert!(!p.collectors.iter().any(|c| c == "firewall"));
+        assert!(p.collectors.iter().any(|c| c == "events-firewall"));
+        assert!(p.collectors.iter().any(|c| c == "network"));
+    }
+}

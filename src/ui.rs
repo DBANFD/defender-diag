@@ -103,7 +103,7 @@ impl App {
     }
     fn count(&self) -> usize {
         match self.page {
-            Page::Home => 12,
+            Page::Home => 11,
             Page::AnalyzerMenu => 4,
             Page::AnalyzerResults => self.analyzer_rows().len(),
             Page::Feeds => self.feeds.len(),
@@ -428,20 +428,19 @@ impl App {
             }
             KeyCode::Enter => match self.page {
                 Page::Home => match self.cursor {
-                    10 => {
+                    9 => {
                         self.feed = None;
                         self.set_hosts(vec![
                             "management.azure.com".into(),
                             "portal.azure.com".into(),
                         ]);
                     }
-                    11 => {
+                    10 => {
                         self.feed = None;
                         self.set_hosts(vec!["enterpriseenrollment.manage.microsoft.com".into()]);
                     }
                     7 => self.workbench = Some(crate::workbench::Section::Collections),
                     8 => self.workbench = Some(crate::workbench::Section::Intune),
-                    9 => self.workbench = Some(crate::workbench::Section::Firewall),
                     0 | 1 => {
                         self.filter = if self.cursor == 0 {
                             "msdefender".into()
@@ -636,7 +635,6 @@ fn draw(f: &mut Frame, a: &App) {
                 "Regional comparison — EDR regions + MDAV + control hosts".into(),
                 "Windows evidence collections — review scope / run / cancel".into(),
                 "Intune policy investigation — local / optional Graph".into(),
-                "Effective Windows Firewall — import / search / export".into(),
                 "Microsoft Azure — management / portal sample targets".into(),
                 "Microsoft Intune — enrollment sample target".into(),
             ],
