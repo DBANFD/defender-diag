@@ -2,6 +2,8 @@
 
 ## 0.6.0
 
+- Portable release archives for Windows x64, Linux x64, macOS Intel and Apple Silicon, with checksums and per-target build/test gates.
+
 - Microsoft-only feeds and custom-target classification, preserving Microsoft regions/clouds and documented dependencies.
 - Runtime standard/preview Analyzer download/import, version selection/pinning and redirect/signature validation. Public build-time embedding removed.
 - Local Defender status page and CLI for Get-MpComputerStatus and Get-MpPreference, with bounded cancellable queries.
