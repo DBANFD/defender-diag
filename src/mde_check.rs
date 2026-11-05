@@ -94,7 +94,7 @@ pub struct HostResult {
     pub http_reviews: usize,
     pub verdict: String,
 }
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct ModelResult {
     pub model: String,
     pub verdict: String,
@@ -279,6 +279,51 @@ pub async fn run(
         warnings,
     })
 }
+/// Display status for the curated sample; never a sensor-health verdict.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Outcome {
+    Pass,
+    Fail,
+    Incomplete,
+}
+impl Outcome {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Pass => "PASS",
+            Self::Fail => "FAIL",
+            Self::Incomplete => "INCOMPLETE",
+        }
+    }
+}
+pub fn outcome(verdict: &str) -> Outcome {
+    match verdict {
+        "responding" => Outcome::Pass,
+        "partial_or_intermittent" | "not_confirmed" => Outcome::Fail,
+        _ => Outcome::Incomplete,
+    }
+}
+pub fn console(r: &CheckReport) {
+    use std::io::IsTerminal;
+    let color = std::io::stdout().is_terminal()
+        && std::env::var_os("NO_COLOR").is_none()
+        && std::env::var("TERM").as_deref() != Ok("dumb");
+    for line in text(r).lines() {
+        let model = r
+            .models
+            .iter()
+            .find(|m| line.starts_with(&format!("{}:", m.model.to_uppercase())));
+        if color && let Some(m) = model {
+            let ansi = match outcome(&m.verdict) {
+                Outcome::Pass => "32",
+                Outcome::Fail => "31",
+                Outcome::Incomplete => "33",
+            };
+            println!("\x1b[1;{ansi}m{line}\x1b[0m");
+        } else {
+            println!("{line}");
+        }
+    }
+}
 pub fn text(r: &CheckReport) -> String {
     use std::fmt::Write;
     let mut s = format!(
@@ -290,8 +335,9 @@ pub fn text(r: &CheckReport) -> String {
     for m in &r.models {
         let _ = writeln!(
             s,
-            "{}: {} ({}/{} hosts responding every round; {} failed address attempts)",
+            "{}: {} — {} ({}/{} hosts responding every round; {} failed address attempts)",
             m.model.to_uppercase(),
+            outcome(&m.verdict).label(),
             m.verdict,
             m.responding_hosts,
             m.total_hosts,
@@ -364,6 +410,16 @@ mod tests {
         a.http_method = Some("GET".into());
         a.http_path = Some(t.path.clone());
         a
+    }
+    #[test]
+    fn display_outcome_does_not_turn_partial_or_unknown_into_pass() {
+        assert_eq!(outcome("responding"), Outcome::Pass);
+        for v in ["partial_or_intermittent", "not_confirmed"] {
+            assert_eq!(outcome(v), Outcome::Fail);
+        }
+        for v in ["incomplete", "unknown", ""] {
+            assert_eq!(outcome(v), Outcome::Incomplete);
+        }
     }
     #[test]
     fn catalog_is_concrete_sourced_and_uses_real_paths() {

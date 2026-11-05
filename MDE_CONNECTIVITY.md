@@ -23,6 +23,11 @@ These are read-only HTTPS GET diagnostic requests, not website home pages or upl
 
 US uses the CUS/EUS regional equivalents (including CUS3/EUS3 for streamlined); UK uses UKS/UKW and UK telemetry/MDAV. The exact versioned registry is assets/mde-probes.json. These lists intentionally cover diagnostic samples, not every failover, storage, update, SmartScreen, configuration or OS-specific dependency. Other commercial regions and sovereign clouds remain in the general feed browser but are not supported by this comparison. Do not test a different region and interpret it as your tenant's readiness.
 
+## Result colors
+The dashboard keeps a summary pinned at the top while details scroll: **green PASS**, **red FAIL** or **yellow INCOMPLETE**, separately for Standard and Streamlined. FAIL means the sample did not fully meet its response criterion, including partial/intermittent results; it does not mean every URL is blocked or the sensor is unhealthy. Failed alternate addresses remain yellow warnings even when a sample passes. Per-host rows use the same colors. Labels remain readable without relying on color alone.
+
+CLI summaries also use PASS/FAIL/INCOMPLETE. Colors are enabled only for terminal output, and disabled by NO_COLOR or TERM=dumb; redirected text and JSON remain plain. Structured verdicts and the pass criteria are unchanged.
+
 ## Interpretation
 - **Responding:** every sampled hostname returned a validated HTTPS GET 200 on the exact diagnostic path on at least one address in every round. HTTP 200 is the diagnostic response criterion; response bodies and sensor certificate pinning are not validated.
 - **Alternate-address warning:** IPv4 might work while IPv6 fails, or one backend IP might fail. This remains visible even when hostname reachability passes; success on one IP does not prove all routes are healthy.

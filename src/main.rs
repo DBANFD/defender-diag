@@ -34,7 +34,7 @@ async fn execute() -> anyhow::Result<bool> {
                 defender_diag::mde_check::run(&options, cancel, |s| eprintln!("{s}")).await;
             watcher.abort();
             let report = result?;
-            println!("{}", defender_diag::mde_check::text(&report));
+            defender_diag::mde_check::console(&report);
             if let Some(path) = &options.output {
                 defender_diag::mde_check::export(&report, path)?;
             }
