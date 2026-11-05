@@ -2,7 +2,7 @@
 
 A portable Rust terminal dashboard and CLI for direct DNS, TCP, and verified TLS troubleshooting. Optional service-aware HTTPS probes distinguish HTTP responses (including 403/404/500) from transport failures.
 
-**Status:** version 0.5.0. Windows formatting, Clippy, all 32 tests and release build passed. Interactive keyboard navigation, Entra HTTPS and service feed import were exercised live. Linux/macOS CI is included but has not run; cross-platform production qualification remains outstanding.
+**Status:** version 0.5.0. Windows formatting, Clippy, all 32 tests and release build passed. Interactive keyboard navigation, Entra HTTPS and service feed import were exercised live. CI covers Windows, Linux, and macOS; see the repository Actions tab for current results. Cross-platform production qualification remains outstanding.
 
 ## Interactive terminal dashboard
 
