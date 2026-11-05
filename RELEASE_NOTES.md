@@ -17,6 +17,8 @@ Verify the archive against `SHA256SUMS.txt` using `Get-FileHash -Algorithm SHA25
 
 ## New in 0.7.0
 
+- Pinned, colored Standard and Streamlined results: green PASS, red FAIL and yellow INCOMPLETE, with alternate-address warnings.
+
 - Dedicated Standard/Streamlined MDE diagnostic comparison, EU by default, with US/UK choices. Uses concrete GET paths, not generic root URLs.
 - Reports both samples separately, repeated-test intermittency and failed alternate addresses. A responding sample is not full readiness or onboarding-mode detection.
 - Clearer DNS/TCP/TLS/HTTP failure guidance and comparison with `mdatp connectivity test`. Raw errors and verification remain intact.
