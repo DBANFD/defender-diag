@@ -1,0 +1,6 @@
+{
+  "endpoints": [
+    "edr-weu.eu.endpoint.security.microsoft.com",
+    "login.microsoftonline.com"
+  ]
+}

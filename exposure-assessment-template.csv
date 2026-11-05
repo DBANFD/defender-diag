@@ -1,2 +1,0 @@
-AssetAlias,AdvisoryReference,SoftwareEvidence,VersionAssessment,RuntimeEvidence,ConfigurationEvidence,ReachabilityEvidence,MitigationEvidence,Assessment,NextCheck
-"synthetic-app-01","SYNTHETIC-ADVISORY-01 (fictional)","Inventory lists Fictional Service 2.4","Candidate only; fictional advisory says below 2.5","Unknown","Optional module state unknown","Unknown","None verified","Candidate exposure; not confirmed exploitation","Verify loaded version and module configuration"

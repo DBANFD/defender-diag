@@ -1,0 +1,481 @@
+[
+  {
+    "host": "update.microsoft.com",
+    "codes": [
+      403
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "officecdn-microsoft-com.akamaized.net",
+    "codes": [
+      400
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "enrollment.dm.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "checkin.dm.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "discovery.dm.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "mdav.eu.endpoint.security.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404,
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "mdav.uk.endpoint.security.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404,
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "mdav.us.endpoint.security.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404,
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "settings-win.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "eu.vortex-win.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "uk.vortex-win.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "fe3cr.delivery.mp.microsoft.com",
+    "codes": [
+      403
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-neu.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-weu.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-neu3.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-weu3.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-uks.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-ukw.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-eus.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "graph.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "enterpriseregistration.windows.net",
+    "codes": [
+      400,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-cus.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-cus3.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-eus3.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-aue.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-aus.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "us.vortex-win.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "au.vortex-win.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "vortex-win.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "client.wns.windows.com",
+    "codes": [
+      400,
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "securitycenter.windows.com",
+    "codes": [
+      400,
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "smartscreen.microsoft.com",
+    "codes": [
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "smartscreen-prod.microsoft.com",
+    "codes": [
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "checkappexec.microsoft.com",
+    "codes": [
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "urs.microsoft.com",
+    "codes": [
+      502
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "wdcp.microsoft.com",
+    "codes": [
+      503
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "wdcpalt.microsoft.com",
+    "codes": [
+      503
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "events.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "eu-v20.events.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "us-v20.events.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "uk-v20.events.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "au-v20.events.data.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "definitionupdates.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "aadcdn.msauth.net",
+    "codes": [
+      400
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "aadcdn.msftauth.net",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "cdn.x.cp.wd.microsoft.com",
+    "codes": [
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "secure.aadcdn.microsoftonline-p.com",
+    "codes": [
+      400
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "static2.sharepointonline.com",
+    "codes": [
+      400
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "tsfe.trafficshaping.dsp.mp.microsoft.com",
+    "codes": [
+      403
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "activation.sls.microsoft.com",
+    "codes": [
+      403
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "ols.officeapps.live.com",
+    "codes": [
+      403
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "reflector.defender.microsoft.com",
+    "codes": [
+      400,
+      403,
+      404
+    ],
+    "confidence": "unverified_script_expectation",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "api.security.microsoft.com",
+    "codes": [
+      400,
+      401,
+      403,
+      404
+    ],
+    "confidence": "unverified_script_expectation",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-aec0a.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  },
+  {
+    "host": "winatp-gw-aen0a.microsoft.com",
+    "codes": [
+      403,
+      404
+    ],
+    "confidence": "historical_script_baseline",
+    "source": "Test-MDEConnectivity.ps1 knownQuirks; reviewed 2026-11-04"
+  }
+]
