@@ -48,7 +48,7 @@ def main():
         with tarfile.open(archive) as z:
             assert set(z.getnames()) == {stem + '/' + name for _, name in files}
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
-    archive.with_name(archive.name + '.sha256').write_text(digest + '  ' + archive.name + '\n', encoding='utf-8')
+    archive.with_name(archive.name + '.sha256').write_text(digest + '  ' + archive.name + '\n', encoding='utf-8', newline='\n')
     print(archive)
 
 if __name__ == '__main__':
