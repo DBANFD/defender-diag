@@ -158,7 +158,7 @@ fn draw_summary(
         Paragraph::new(lines).block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(" MDE CONNECTIVITY RESULT — DIRECT "),
+                .title(" MDE CONNECTIVITY RESULT - DIRECT "),
         ),
         area,
     );

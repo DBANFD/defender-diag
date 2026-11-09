@@ -335,7 +335,7 @@ pub fn text(r: &CheckReport) -> String {
     for m in &r.models {
         let _ = writeln!(
             s,
-            "{}: {} — {} ({}/{} hosts responding every round; {} failed address attempts)",
+            "{}: {} - {} ({}/{} hosts responding every round; {} failed address attempts)",
             m.model.to_uppercase(),
             outcome(&m.verdict).label(),
             m.verdict,

@@ -626,17 +626,17 @@ fn draw(f: &mut Frame, a: &App) {
         Page::Home => (
             " Select endpoint source ".into(),
             vec![
-                "Microsoft Defender — regional / service URL feeds".into(),
+                "Microsoft Defender - regional / service URL feeds".into(),
                 "Browse All Microsoft service URL feeds (filter by provider / region)".into(),
-                "Quick example targets — MDE West Europe + Entra".into(),
-                "Microsoft Entra ID — login.microsoftonline.com".into(),
+                "Quick example targets - MDE West Europe + Entra".into(),
+                "Microsoft Entra ID - login.microsoftonline.com".into(),
                 "Custom Microsoft service hostname".into(),
-                "MDE Client Analyzer — run / import / view findings".into(),
-                "Regional comparison — EDR regions + MDAV + control hosts".into(),
-                "Defender status — Get-MpComputerStatus / Get-MpPreference".into(),
-                "Microsoft Azure — management / portal sample targets".into(),
-                "Microsoft Intune — enrollment sample target".into(),
-                "MDE connectivity check — Standard / Streamlined (EU default)".into(),
+                "MDE Client Analyzer - run / import / view findings".into(),
+                "Regional comparison - EDR regions + MDAV + control hosts".into(),
+                "Defender status - Get-MpComputerStatus / Get-MpPreference".into(),
+                "Microsoft Azure - management / portal sample targets".into(),
+                "Microsoft Intune - enrollment sample target".into(),
+                "MDE connectivity check - Standard / Streamlined (EU default)".into(),
             ],
         ),
         Page::AnalyzerMenu => (
@@ -645,7 +645,7 @@ fn draw(f: &mut Frame, a: &App) {
                 "Run selected Microsoft package - requires administrator; license prompts preserved".into(),
                 "Import existing result ZIP / MDEClientAnalyzer.xml / extracted folder".into(),
                 "View loaded analyzer findings".into(),
-                "Manage packages — standard / preview / import / select / pin".into(),
+                "Manage packages - standard / preview / import / select / pin".into(),
             ],
         ),
         Page::Feeds => (
@@ -660,13 +660,13 @@ fn draw(f: &mut Frame, a: &App) {
         Page::Targets => {
             if a.excluded {
                 (
-                    " Excluded feed entries — NOT tested; never counted as successes ".into(),
+                    " Excluded feed entries - NOT tested; never counted as successes ".into(),
                     a.feed
                         .as_ref()
                         .map(|s| {
                             s.skipped
                                 .iter()
-                                .map(|x| format!("{} — {}", safe(&x.entry), x.reason))
+                                .map(|x| format!("{} - {}", safe(&x.entry), x.reason))
                                 .collect()
                         })
                         .unwrap_or_default(),
@@ -689,7 +689,7 @@ fn draw(f: &mut Frame, a: &App) {
             }
         }
         Page::Setup => (
-            " Configure test — Enter cycles mode or edits value ".into(),
+            " Configure test - Enter cycles mode or edits value ".into(),
             vec![
                 format!(
                     "Test mode: {:?} (DNS → TCP → verified TLS → HTTPS probe)",
@@ -715,7 +715,7 @@ fn draw(f: &mut Frame, a: &App) {
                     }
                 ),
                 format!(
-                    "▶ START — {} hosts × {} rounds",
+                    "▶ START - {} hosts × {} rounds",
                     a.selected.len(),
                     a.options.count
                 ),
@@ -781,7 +781,7 @@ fn draw_analyzer(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
         ))
         .wrap(Wrap { trim: true })
         .block(panel(
-            " Microsoft analyzer evidence — source-time snapshot ",
+            " Microsoft analyzer evidence - source-time snapshot ",
         )),
         parts[0],
     );
@@ -854,7 +854,7 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
         f.render_widget(
             Paragraph::new(text)
                 .wrap(Wrap { trim: true })
-                .block(panel(" Evidence / interpretation — d returns to table ")),
+                .block(panel(" Evidence / interpretation - d returns to table ")),
             area,
         );
         return;
@@ -891,7 +891,7 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
             }
         ))
         .block(panel(
-            " Overview — HTTP error responses are not transport failures ",
+            " Overview - HTTP error responses are not transport failures ",
         )),
         parts[0],
     );
@@ -918,7 +918,7 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
         } else {
             Color::Green
         };
-        let ms = |v: Option<f64>| v.map(|n| format!("{n:.1}")).unwrap_or_else(|| "—".into());
+        let ms = |v: Option<f64>| v.map(|n| format!("{n:.1}")).unwrap_or_else(|| "-".into());
         Row::new(vec![
             x.iteration.to_string(),
             x.hostname.clone(),
@@ -984,7 +984,7 @@ fn draw_results(f: &mut Frame, a: &App, area: ratatui::layout::Rect) {
                 .collect();
             let summary = crate::statistics::summarize(&rows);
             let latency =
-                |v: Option<f64>| v.map(|n| format!("{n:.1}")).unwrap_or_else(|| "—".into());
+                |v: Option<f64>| v.map(|n| format!("{n:.1}")).unwrap_or_else(|| "-".into());
             let stats = format!(
                 "{} | OK {:.1}% | min {} / avg {} / max {} / p95 {} ms",
                 x.hostname,
