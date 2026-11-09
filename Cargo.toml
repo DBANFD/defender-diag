@@ -1,6 +1,6 @@
 [package]
 name = "defender-diag"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2024"
 description = "Evidence-oriented direct cloud connectivity diagnostics"
 license = "MIT"

@@ -1,4 +1,4 @@
-# Defender Diag v0.7.0
+# Defender Diag v0.7.1
 
 Portable terminal dashboard and CLI for Microsoft service connectivity, runtime MDE Client Analyzer package management, and local Windows Defender status.
 
