@@ -46,6 +46,9 @@ pub struct CheckOptions {
     /// Write a new JSON report; never overwrite an existing file.
     #[arg(long)]
     pub output: Option<PathBuf>,
+    /// Route: direct (default), env, system (Windows WinHTTP) or http://host:port.
+    #[arg(long, default_value = "direct", value_parser = crate::proxy::parse_choice)]
+    pub proxy: crate::proxy::ProxyChoice,
 }
 impl Default for CheckOptions {
     fn default() -> Self {
@@ -54,6 +57,7 @@ impl Default for CheckOptions {
             count: 3,
             timeout_seconds: 10,
             output: None,
+            proxy: Default::default(),
         }
     }
 }
@@ -82,7 +86,7 @@ pub fn targets(region: Region) -> Vec<Target> {
         .collect()
 }
 pub const LIMITS: &str = "DIRECT commercial-cloud samples, not a complete allowlist, sensor health verdict or configured onboarding-mode detection. HTTP 200 is the diagnostic response criterion; response bodies and sensor certificate pinning are not validated. Per host/round, one validated HTTPS 200 address is enough for reachability; failed alternate IPs remain warnings. Supporting updates, storage uploads, SmartScreen, configuration and tenant-specific endpoints are outside this sample. Government/other regions need their official lists and Client Analyzer.";
-pub const COMPARE: &str = "Why mdatp may pass: it tests the installed client's URLs/paths and network settings; feeds cover broader regions/features and generic roots. This app ignores explicit proxy settings, validates with native roots/rustls (not sensor pinning), and tests every resolved IPv4/IPv6 address. Compare on the SAME endpoint and time, with the same URL/path, region and route. On Linux run `mdatp connectivity test`; on Windows use Client Analyzer with the actual onboarding parameters. Do not change onboarding mode based on this sample.";
+pub const COMPARE: &str = "Why mdatp may pass: it tests the installed client's URLs/paths and network settings; feeds cover broader regions/features and generic roots. This app connects DIRECT unless --proxy is set (HTTP CONNECT only; no PAC or proxy authentication), validates with native roots/rustls (not sensor pinning), and tests every resolved IPv4/IPv6 address. Compare on the SAME endpoint and time, with the same URL/path, region and route. On Linux run `mdatp connectivity test`; on Windows use Client Analyzer with the actual onboarding parameters. Do not change onboarding mode based on this sample.";
 #[derive(Debug, Serialize)]
 pub struct HostResult {
     pub target: Target,
@@ -238,7 +242,9 @@ pub async fn run(
         resolve_ip: None,
         output: None,
         csv: None,
+        html: None,
         https: true,
+        proxy: o.proxy.clone(),
     };
     let observed = Arc::new(Mutex::new(Vec::new()));
     let captured = observed.clone();
@@ -260,18 +266,20 @@ pub async fn run(
         )
     };
     let (hosts, models, conclusion) = summarize(&ts, &attempts, o.count, was_cancelled);
+    let plan_info =
+        crate::proxy::describe(&crate::proxy::plan(&o.proxy).map_err(anyhow::Error::msg)?);
     Ok(CheckReport {
         schema_version: 1,
         tool_version: env!("CARGO_PKG_VERSION").into(),
         started_at,
         completed_at: chrono::Utc::now().to_rfc3339(),
         region: o.region,
-        route: "direct".into(),
+        route: plan_info.source.clone(),
         cancelled: was_cancelled,
         conclusion,
         limitations: LIMITS.into(),
         comparison_guidance: COMPARE.into(),
-        proxy: crate::proxy::detect(),
+        proxy: plan_info,
         hosts,
         models,
         dns,

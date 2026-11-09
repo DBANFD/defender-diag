@@ -9,14 +9,14 @@ UTF-8 JSON, schema_version = 2. Additive fields may appear; consumers should ign
 | platform | OS identifier |
 | mode | dns, dns_tcp, dns_tcp_tls or dns_tcp_tls_https |
 | warnings | array of diagnostic limitations/trust-loading notes |
-| proxy | environment_variables_present (names only), note |
+| proxy | environment_variables_present (names only), source (direct, explicit, environment or winhttp), proxy (http://host:port or null), bypass_rules (count only), note |
 | dns | array of DNS observations |
 | attempts | array of individual connection attempts or hostname-only DNS failures |
 | summaries | map keyed by host:hostname or ip:hostname/address |
 
 DNS observation: hostname, iteration (1-based), timestamp (UTC), source (operating system or override (DNS skipped)), duration_ms (number), addresses (unique IP strings), error (null or failure).
 
-Attempt: hostname, ip (string or null on DNS failure / DNS-only probes), port, iteration, timestamp (UTC start), route (always direct), tcp_ms/tls_ms/http_ms (number or null if not attempted), total_ms (number), tls_version/cipher (string or null), certificates (array), http_status (integer or null), success (boolean), error (null or failure).
+Attempt: hostname, ip (string or null on DNS failure / DNS-only probes), port, iteration, timestamp (UTC start), route ("direct" or "proxy http://host:port"), tcp_ms/tls_ms/http_ms (number or null if not attempted), total_ms (number), tls_version/cipher (string or null), certificates (array), http_status (integer or null), success (boolean), error (null or failure). proxy_connect_ms (number or null; time for the CONNECT exchange when tunnelled, with tcp_ms then measuring the proxy connection). Proxied attempts have ip null because the proxy resolves the name.
 
 Certificate: subject, issuer, expires (strings parsed from X.509). Only available after trusted handshake. No assertion of root presence or revocation status.
 
@@ -24,11 +24,13 @@ Failure: code (stable string), message (diagnostic detail; not stable for parsin
 
 Summary: attempts and successes (integers), success_percent (number 0..100), min_ms/max_ms/average_ms/p95_ms (number or null), failures (map of code to count). Latencies include successful connection attempts only; see README for DNS and hostname weighting.
 
-CSV: timestamp,hostname,ip,port,iteration,route,tcp_ms,tls_ms,http_ms,total_ms,http_status,success,error_code,http_method,http_path,assessment. Empty fields represent null. All attempts are exported; detailed certificates, errors, DNS observations and summaries are JSON-only. The first 13 CSV columns retain their previous order; schema 2 appends method, path and assessment.
+CSV: timestamp,hostname,ip,port,iteration,route,tcp_ms,tls_ms,http_ms,total_ms,http_status,success,error_code,http_method,http_path,assessment,proxy_connect_ms. Empty fields represent null. All attempts are exported; detailed certificates, errors, DNS observations and summaries are JSON-only. The first 13 CSV columns retain their previous order; schema 2 appends method, path and assessment.
 
 Version 0.2.0 adds optional source_feed: url, retrieved_at (UTC RFC3339), sha256 (UTF-8 feed bytes), catalog_source, targets (eligible concrete hosts), and skipped (entry/reason pairs). It is absent for non-feed runs. Imported inventory may include hosts the user deselected; attempts record what was actually tested. User-added concrete hosts can also appear in attempts. Excluded entries never enter success denominators. Credential/query-bearing or control-character entries are redacted.
 
 DNS-only mode emits one hostname-level row per lookup. Its total_ms is DNS elapsed time; tcp_ms/tls_ms/http_ms are null. Other modes retain per-IP rows and connection-stage timing semantics. Interactive mode exit 0 means the user closed the UI normally; use reports to assess diagnostic outcomes. Scripted commands retain exit 0/1/2 semantics.
+
+Version 0.8.0 keeps schema 2 and appends proxy_connect_ms (JSON and CSV) plus proxy source fields. New failure codes: PROXY_TCP_TIMEOUT, PROXY_TCP_* (connection to the proxy), PROXY_TIMEOUT, PROXY_IO, PROXY_INVALID_RESPONSE, PROXY_AUTH_REQUIRED, PROXY_CONNECT_REJECTED.
 
 Version 0.3.0/schema 2 adds http_method and http_path (null until an HTTP request is attempted), assessment, and diagnostic_note to JSON attempts. CSV appends http_method,http_path,assessment. success remains the raw selected-stage result; assessments never modify it. Assessment values: not_assessed (manually constructed row), stage_succeeded, response_received, known_http_response, possible_expected_http, review_http, transport_failure, apex_not_service_test, optional_ipv6_probe. Historical expectation context is not current service-health evidence. All 5xx statuses require review; TLS errors always remain failures. Raw HTTP status and failure code are preserved.
 
@@ -53,4 +55,4 @@ Connectivity schema 2 and Analyzer import schema 1 remain compatible. Feed snaps
 Defender status is display-only command output, not a connectivity report schema. It includes command, query time and pretty-printed values; no automatic file export.
 
 ## MDE check schema 1 (0.7.0)
-Separate from connectivity schema 2: schema_version, tool_version, started_at/completed_at, region, route=direct, cancelled, conclusion, limitations, comparison_guidance, proxy, hosts, models, dns, attempts, warnings. Targets retain hostname/path/purpose/source/expected_status. Host rows record responding/observed/expected rounds, transport successes, address failures and HTTP review counts. A host responds when at least one IP receives validated HTTPS GET 200 on the exact diagnostic path in every requested round. Failures on other IPs remain visible. Model verdicts: responding, partial_or_intermittent, not_confirmed, incomplete. A missing host/round or cancellation cannot produce a passing combined verdict. Cancelled reports retain completed attempts but may omit in-flight DNS/address work. All exports use create-new.
+Separate from connectivity schema 2: schema_version, tool_version, started_at/completed_at, region, route (direct, explicit, environment or winhttp), cancelled, conclusion, limitations, comparison_guidance, proxy, hosts, models, dns, attempts, warnings. Targets retain hostname/path/purpose/source/expected_status. Host rows record responding/observed/expected rounds, transport successes, address failures and HTTP review counts. A host responds when at least one IP receives validated HTTPS GET 200 on the exact diagnostic path in every requested round. Failures on other IPs remain visible. Model verdicts: responding, partial_or_intermittent, not_confirmed, incomplete. A missing host/round or cancellation cannot produce a passing combined verdict. Cancelled reports retain completed attempts but may omit in-flight DNS/address work. All exports use create-new.

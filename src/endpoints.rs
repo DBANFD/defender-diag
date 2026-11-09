@@ -134,6 +134,18 @@ pub fn failure_guidance(a: &Attempt) -> String {
         "HTTP_IO" => {
             "The connection ended or failed while exchanging HTTP after TLS. A generic root/method may not be a service diagnostic; compare the documented request path."
         }
+        "PROXY_AUTH_REQUIRED" => {
+            "The proxy answered 407 and requires authentication. This app does not send proxy credentials; test with a route that allows unauthenticated CONNECT or use the sensor's own tools."
+        }
+        "PROXY_CONNECT_REJECTED" => {
+            "The proxy refused to open a tunnel to this host and port. Check the proxy allowlist or category policy for this destination."
+        }
+        "PROXY_TIMEOUT" | "PROXY_TCP_TIMEOUT" => {
+            "The proxy did not connect or answer CONNECT before the deadline. Check the proxy address, port and reachability."
+        }
+        code if code.starts_with("PROXY_") => {
+            "Connecting to the configured proxy failed. Check the proxy address and port; the target host was not reached."
+        }
         _ => {
             "The recorded stage failed for this attempt. Retain the raw error and compare another IP/round; do not infer a sensor outage from one address probe."
         }
@@ -143,9 +155,15 @@ pub fn failure_guidance(a: &Attempt) -> String {
     } else {
         ""
     };
-    format!(
-        "{hint}{family} DIRECT route: proxy variables and the Defender sensor's proxy/pinning context are not used. No failure is suppressed as expected."
-    )
+    let route = if a.route.starts_with("proxy") {
+        format!(
+            " Route: {} (HTTP CONNECT). This may still differ from the Defender sensor's own proxy and pinning context.",
+            a.route
+        )
+    } else {
+        " DIRECT route: proxy variables and the Defender sensor's proxy/pinning context are not used.".to_string()
+    };
+    format!("{hint}{family}{route} No failure is suppressed as expected.")
 }
 /// Evidence about another working address, without changing the failed attempt.
 pub fn alternate_address_note(a: &Attempt, attempts: &[Attempt]) -> &'static str {

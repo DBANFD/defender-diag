@@ -53,7 +53,10 @@ impl State {
             channel: packages::Channel::Standard,
             packages: packages::list(&packages::store()).unwrap_or_default(),
             search: String::new(),
-            check: Default::default(),
+            check: crate::mde_check::CheckOptions {
+                proxy: crate::proxy::session(),
+                ..Default::default()
+            },
             model_results: None,
         }
     }
@@ -68,7 +71,10 @@ impl State {
                     "Iterations: {} (1 second between rounds; 10 seconds per stage)",
                     self.check.count
                 ),
-                "START Standard + Streamlined diagnostic samples (DIRECT)".into(),
+                format!(
+                    "START Standard + Streamlined diagnostic samples ({})",
+                    crate::proxy::session_label()
+                ),
                 "Why feed errors can differ from mdatp / scope and limitations".into(),
             ],
             Page::Menu => [
@@ -155,11 +161,10 @@ fn draw_summary(
         " Sample result only; details below. Not a sensor-health verdict.",
     ));
     f.render_widget(
-        Paragraph::new(lines).block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title(" MDE CONNECTIVITY RESULT - DIRECT "),
-        ),
+        Paragraph::new(lines).block(Block::default().borders(Borders::ALL).title(format!(
+            " MDE CONNECTIVITY RESULT - {} ",
+            crate::proxy::session_label()
+        ))),
         area,
     );
 }

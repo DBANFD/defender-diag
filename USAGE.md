@@ -67,6 +67,8 @@ Options:
 - --port 1..65535 (default 443); the selected mode determines whether TLS is attempted.
 - --mode dns|tcp|tls|https selects the deepest stage (CLI default tls); DNS/TCP modes do not load trust roots.
 - --https enables service-aware HTTP/1.1 probes after TLS. Selected EDR/MDAV/gateway/CDN/telemetry hosts use GET on specific test paths; other hosts use HEAD /. --generic-http forces HEAD / for comparison. The interactive settings menu also exposes this switch. Redirects are recorded, never followed.
+- --proxy selects the route: direct (default), env (HTTPS_PROXY or ALL_PROXY, honouring NO_PROXY), system (Windows WinHTTP from `netsh winhttp show proxy`, including its bypass list and <local>) or an explicit http://host:port. Only unauthenticated HTTP CONNECT proxies are supported; credentials in the URL are rejected, and a 407 reply is reported as PROXY_AUTH_REQUIRED. The proxy resolves target names, so a proxied host gets one attempt per round with no IP, and local DNS results are kept as evidence only. DNS mode always resolves locally. `defender-diag ui --proxy ...` applies the route to every dashboard test, including the MDE connectivity check.
+- --html writes a self-contained HTML report (no scripts or external resources). The dashboard saves HTML next to JSON and CSV.
 - --output JSON and --csv CSV use create-new semantics and refuse to overwrite evidence. Parent folders must exist. An I/O failure may leave a partial file; errors exit 2.
 
 Exit codes: 0 = every selected transport probe succeeded; 1 = at least one DNS/TCP/TLS/HTTP transport probe failed; 2 = configuration, trust-store setup, or output error. HTTP application statuses do not cause exit 1.
@@ -81,7 +83,7 @@ TCP codes separate timeout, refusal, unreachable, permission denial, reset and o
 
 Each attempted stage has elapsed milliseconds, including failed stages; unattempted stages are null. Success percentages count per-IP attempts, so a hostname with more returned addresses contributes more attempts. DNS failure is a hostname-only failed row. Successful latency statistics use the selected connection stages, excluding DNS, queueing and delays. DNS-only mode produces one hostname row per round with lookup latency and all addresses in the DNS observation. p95 is nearest-rank ceil(0.95*N). Failures never enter successful-latency statistics. Empty successful samples produce null latency metrics.
 
-All connections are DIRECT. Proxy environment variable names are reported, never their values. These settings do not establish the Defender sensor's effective proxy configuration. No credentials, cookies, tokens, request authorization or proxy authentication are sent. HTTP response headers/bodies are not exported; this avoids leaking Set-Cookie or redirect tokens. Certificate identities and internal host/IP values remain operationally sensitive evidence.
+Connections are DIRECT unless --proxy is set. Proxy environment variable names are reported, never their values; the configured proxy is exported as host:port only. These settings do not establish the Defender sensor's effective proxy configuration. No credentials, cookies, tokens, request authorization or proxy authentication are sent. HTTP response headers/bodies are not exported; this avoids leaking Set-Cookie or redirect tokens. Certificate identities and internal host/IP values remain operationally sensitive evidence.
 
 A 403/404 proves an HTTPS response was received on that connection; it does not establish service enrollment, authentication, sensor health, or access to all required paths.
 
@@ -97,8 +99,8 @@ The [external endpoint feed service](https://docs.paloaltonetworks.com/resources
 
 - --dns-server resolver override, explicit A/AAAA record queries, and CNAME-chain display. The OS API does not expose CNAME chains.
 - Invalid-certificate inspection mode (verification is always enabled).
-- Automatic GET fallback on method rejection, arbitrary custom paths, selected safe response-header capture and proxy-routed CONNECT tests.
-- Windows WinHTTP/WinINET/PAC discovery and sensor-effective proxy analysis.
+- Automatic GET fallback on method rejection, arbitrary custom paths, selected safe response-header capture.
+- WinINET/PAC/WPAD discovery, proxy authentication and sensor-effective proxy analysis.
 - Automatic catalogue refresh, wildcard expansion using tenant inventory, and URL-path-specific probes. The embedded feed catalogue is dated; imported concrete hosts are not full service coverage.
 - Stage-specific aggregate percentiles, streaming final reports, complete interrupted-run summaries and retry scheduling. Incremental JSONL journaling is available.
 - Signed installation packages, dependency/security audit and completed Windows Server/Linux/macOS qualification.

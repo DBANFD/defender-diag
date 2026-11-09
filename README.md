@@ -2,14 +2,14 @@
 
 A terminal dashboard and command-line tool for investigating Microsoft Defender connectivity. Follow DNS, TCP, TLS, and HTTPS results separately, compare service endpoints, and export evidence for further analysis.
 
-Written in Rust. Source version: **0.7.1**. See GitHub Releases for platform downloads.
+Written in Rust. Source version: **0.8.0**. See GitHub Releases for platform downloads.
 
 ## Features
 
 - Interactive target selection, live results, latency graphs, and per-host statistics.
-- Direct DNS, TCP, verified TLS, and optional service-aware HTTPS probes.
+- Direct DNS, TCP, verified TLS, and optional service-aware HTTPS probes, or the same probes through an HTTP CONNECT proxy (`--proxy env`, `--proxy system` for WinHTTP, or `--proxy http://host:port`).
 - Microsoft-only service feeds, sourced endpoint classification, regional comparisons and repeat-test presets.
-- JSON and CSV reports, plus an incremental JSONL journal for longer runs.
+- JSON, CSV and self-contained HTML reports (`--html`), plus an incremental JSONL journal for longer runs.
 - Runtime MDE Client Analyzer packages: standard/preview, offline import, versions and pinning.
 - Full local Windows Defender computer-status and preference output, with searchable terminal display.
 
@@ -72,7 +72,7 @@ Open **Defender status** in the dashboard to choose Get-MpComputerStatus or Get-
 
 Transport success means that the selected connection stages completed. An HTTP response, including 403 or 404, does not by itself establish Defender sensor health. HTTP 5xx responses remain visible for investigation.
 
-Connections are direct; the tool does not reproduce the sensor's proxy context. TLS certificate verification stays enabled. Reports can contain hostnames, IP addresses, and certificate information, so inspect them before sharing.
+Connections are direct unless `--proxy` is set. Proxied hosts are reached by name through HTTP CONNECT, so per-IP results are not available for them. PAC/WPAD scripts and authenticated proxies are not supported, and the tool still does not reproduce the sensor's own proxy context. TLS certificate verification stays enabled. Reports can contain hostnames, IP addresses, and certificate information, so inspect them before sharing.
 
 ## Documentation
 
