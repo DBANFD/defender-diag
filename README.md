@@ -2,7 +2,7 @@
 
 A terminal dashboard and command-line tool for investigating Microsoft Defender connectivity. Follow DNS, TCP, TLS, and HTTPS results separately, compare service endpoints, and export evidence for further analysis.
 
-Written in Rust. Source version: **0.7.0**. See GitHub Releases for platform downloads.
+Written in Rust. Source version: **0.7.1**. See GitHub Releases for platform downloads.
 
 ## Features
 
