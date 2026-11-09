@@ -18,7 +18,8 @@ async fn main() -> std::process::ExitCode {
 async fn execute() -> anyhow::Result<bool> {
     let cli = Cli::parse();
     let command = match cli.command {
-        None | Some(Command::Ui) => return defender_diag::ui::run().await,
+        None => return defender_diag::ui::run(Default::default()).await,
+        Some(Command::Ui { proxy }) => return defender_diag::ui::run(proxy).await,
         Some(command) => command,
     };
     let mut source_feed = None;
@@ -81,7 +82,7 @@ async fn execute() -> anyhow::Result<bool> {
             }
             return Ok(true);
         }
-        Command::Ui => unreachable!(),
+        Command::Ui { .. } => unreachable!(),
         Command::Feeds { filter } => {
             for url in defender_diag::edl::catalog(&filter) {
                 println!(
@@ -125,5 +126,8 @@ async fn execute() -> anyhow::Result<bool> {
     report.source_feed = source_feed;
     reporting::console(&report);
     reporting::export(&report, options.output.as_deref(), options.csv.as_deref())?;
+    if let Some(path) = &options.html {
+        reporting::export_html(&report, path)?;
+    }
     Ok(report.attempts.iter().all(|a| a.success))
 }

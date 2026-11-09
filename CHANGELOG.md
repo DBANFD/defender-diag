@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0 - 2026-11-09
+
+- Optional HTTP CONNECT proxy routing for tests, profiles, feeds, the MDE connectivity check and the dashboard: `--proxy env` (HTTPS_PROXY/ALL_PROXY with NO_PROXY), `--proxy system` (Windows WinHTTP with its bypass list) or `--proxy http://host:port`. Direct remains the default.
+- Proxy failures have their own codes and guidance, including PROXY_AUTH_REQUIRED for 407 and PROXY_CONNECT_REJECTED for refused tunnels. Credentials are never accepted or exported.
+- Self-contained HTML reports with `--html`; the dashboard saves HTML alongside JSON and CSV.
+- Reports add proxy source and proxy_connect_ms; CSV appends a proxy_connect_ms column.
+
 ## 0.7.0 - 2026-11-05
 
 - Pinned, color-coded Standard/Streamlined PASS/FAIL/INCOMPLETE summary, colored per-host results and terminal-aware CLI status colors.

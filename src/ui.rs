@@ -82,9 +82,14 @@ impl App {
                 resolve_ip: None,
                 output: None,
                 csv: None,
+                html: None,
                 https: false,
+                proxy: crate::proxy::session(),
             },
-            status: "Choose an endpoint source. All probes use DIRECT connections.".into(),
+            status: format!(
+                "Choose an endpoint source. All probes use {} connections.",
+                crate::proxy::session_label()
+            ),
             input: None,
             excluded: false,
             attempts: Vec::new(),
@@ -176,8 +181,9 @@ impl App {
             let json = dir.join(format!("{stem}.json"));
             let csv = dir.join(format!("{stem}.csv"));
             reporting::export(report, Some(&json), Some(&csv))?;
+            reporting::export_html(report, &dir.join(format!("{stem}.html")))?;
             Ok(format!(
-                "Saved JSON (+ matching CSV): {}",
+                "Saved JSON (+ matching CSV and HTML): {}",
                 json.strip_prefix(std::env::current_dir()?)
                     .unwrap_or(&json)
                     .display()
@@ -563,13 +569,14 @@ fn draw(f: &mut Frame, a: &App) {
         Constraint::Length(4),
     ])
     .split(f.area());
+    let route_label = format!("{} CONNECTIONS", crate::proxy::session_label());
     let header = format!(
         " DEFENDER-DIAG  v{}    |    {}    |    {}",
         env!("CARGO_PKG_VERSION"),
         if matches!(a.page, Page::AnalyzerMenu | Page::AnalyzerResults) {
             "ANALYZER EVIDENCE"
         } else {
-            "DIRECT CONNECTIONS"
+            &route_label
         },
         chrono::Utc::now().format("%H:%M:%S UTC")
     );
@@ -1046,7 +1053,9 @@ impl Drop for Restore {
         ratatui::restore();
     }
 }
-pub async fn run() -> Result<bool> {
+pub async fn run(proxy: crate::proxy::ProxyChoice) -> Result<bool> {
+    crate::proxy::plan(&proxy).map_err(anyhow::Error::msg)?;
+    crate::proxy::set_session(proxy);
     ensure!(
         std::io::stdin().is_terminal() && std::io::stdout().is_terminal(),
         "Interactive mode needs a terminal. Run defender-diag --help for scripted commands."

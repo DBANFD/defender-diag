@@ -1,4 +1,4 @@
-# Defender Diag v0.7.1
+# Defender Diag v0.8.0
 
 Portable terminal dashboard and CLI for Microsoft service connectivity, runtime MDE Client Analyzer package management, and local Windows Defender status.
 
@@ -14,6 +14,13 @@ Portable terminal dashboard and CLI for Microsoft service connectivity, runtime 
 Download the archive matching your CPU, extract it and run `defender-diag.exe` on Windows or `./defender-diag` from Terminal on Linux/macOS. Use `--help` for CLI commands. Rust is not required. Archives include usage documentation and the MIT license. GitHub's automatic source ZIP/tarballs contain source code, not compiled applications.
 
 Verify the archive against `SHA256SUMS.txt` using `Get-FileHash -Algorithm SHA256` on Windows, `sha256sum` on Linux, or `shasum -a 256` on macOS. Checksums detect mismatches; they are not a publisher signature. These builds are not publisher code-signed or Apple-notarized. OS download protections may prompt or block execution; source builds remain available.
+
+## New in 0.8.0
+
+- Test through an HTTP CONNECT proxy: `--proxy env`, `--proxy system` (Windows WinHTTP) or `--proxy http://host:port`, in the CLI, the dashboard (`ui --proxy ...`) and the MDE connectivity check. Direct stays the default.
+- Named proxy failures such as PROXY_AUTH_REQUIRED (407) and PROXY_CONNECT_REJECTED, with guidance.
+- Self-contained HTML reports with `--html`; the dashboard saves HTML next to JSON and CSV.
+- PAC/WPAD and authenticated proxies are not supported. Proxied hosts are tested by name, so per-IP results apply only to direct routes.
 
 ## New in 0.7.0
 

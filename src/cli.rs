@@ -29,7 +29,11 @@ pub enum Command {
         action: AnalyzerCommand,
     },
     /// Launch the interactive terminal dashboard.
-    Ui,
+    Ui {
+        /// Route for dashboard tests: direct (default), env, system or http://host:port.
+        #[arg(long, default_value = "direct", value_parser = crate::proxy::parse_choice)]
+        proxy: crate::proxy::ProxyChoice,
+    },
     /// List the bundled service URL feed catalogue.
     Feeds {
         #[arg(long, default_value = "msdefender")]
@@ -152,9 +156,15 @@ pub struct Options {
     pub output: Option<PathBuf>,
     #[arg(long)]
     pub csv: Option<PathBuf>,
+    /// Write a self-contained HTML report; never overwrites an existing file.
+    #[arg(long)]
+    pub html: Option<PathBuf>,
     /// Perform a service-aware HTTP/1.1 probe after verified TLS.
     #[arg(long)]
     pub https: bool,
+    /// Route: direct (default), env (HTTPS_PROXY/NO_PROXY), system (Windows WinHTTP) or http://host:port.
+    #[arg(long, default_value = "direct", value_parser = crate::proxy::parse_choice)]
+    pub proxy: crate::proxy::ProxyChoice,
 }
 impl Options {
     pub fn apply_preset(&mut self, preset: Preset) {
