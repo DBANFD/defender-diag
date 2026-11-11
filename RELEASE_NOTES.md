@@ -1,4 +1,4 @@
-# Defender Diag v0.8.0
+# Defender Diag v0.9.0
 
 Portable terminal dashboard and CLI for Microsoft service connectivity, runtime MDE Client Analyzer package management, and local Windows Defender status.
 
@@ -8,6 +8,8 @@ Portable terminal dashboard and CLI for Microsoft service connectivity, runtime 
 | --- | --- |
 | `x86_64-pc-windows-msvc.zip` | Windows 11 / Windows Server, x64 |
 | `x86_64-unknown-linux-gnu.tar.gz` | Linux x64, glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+) |
+| `x86_64-unknown-linux-musl.tar.gz` | Linux x64, static; for distributions older than glibc 2.35. New in 0.9.0 |
+| `aarch64-pc-windows-msvc.zip` | Windows 11 on ARM64. New in 0.9.0 |
 | `x86_64-apple-darwin.tar.gz` | macOS Intel; built/tested on macOS 15 |
 | `aarch64-apple-darwin.tar.gz` | macOS Apple Silicon; built/tested on macOS 15 |
 
@@ -15,12 +17,21 @@ Download the archive matching your CPU, extract it and run `defender-diag.exe` o
 
 Verify the archive against `SHA256SUMS.txt` using `Get-FileHash -Algorithm SHA256` on Windows, `sha256sum` on Linux, or `shasum -a 256` on macOS. Checksums detect mismatches; they are not a publisher signature. These builds are not publisher code-signed or Apple-notarized. OS download protections may prompt or block execution; source builds remain available.
 
+## New in 0.9.0
+
+- Basic proxy authentication through `DIAG_PROXY_USER` / `DIAG_PROXY_PASSWORD` or credentials in HTTPS_PROXY/ALL_PROXY. Credentials are never accepted on the command line or written to reports. Negotiate, Kerberos and NTLM are not supported.
+- The Host header no longer carries `:443`, so probes look like the real client to front ends and WAFs.
+- Redirect targets of 3xx responses are recorded (sanitized, never followed).
+- New downloads: Windows ARM64 and a static Linux build (musl). These targets are new and may be missing from a release if their build fails.
+- Release archives carry a GitHub build provenance attestation: `gh attestation verify <archive> --repo DBANFD/defender-diag`.
+- Guides now live under `docs/` in the archive.
+
 ## New in 0.8.0
 
 - Test through an HTTP CONNECT proxy: `--proxy env`, `--proxy system` (Windows WinHTTP) or `--proxy http://host:port`, in the CLI, the dashboard (`ui --proxy ...`) and the MDE connectivity check. Direct stays the default.
 - Named proxy failures such as PROXY_AUTH_REQUIRED (407) and PROXY_CONNECT_REJECTED, with guidance.
 - Self-contained HTML reports with `--html`; the dashboard saves HTML next to JSON and CSV.
-- PAC/WPAD and authenticated proxies are not supported. Proxied hosts are tested by name, so per-IP results apply only to direct routes.
+- PAC/WPAD is not supported. Proxied hosts are tested by name, so per-IP results apply only to direct routes.
 
 ## New in 0.7.0
 

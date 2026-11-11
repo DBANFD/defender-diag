@@ -525,13 +525,14 @@ checksum = "4583a4551df46e2792f82ceeac45e850d2e2d5debba0b91f102385cda5b11f06"
 
 [[package]]
 name = "defender-diag"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "anyhow",
  "chrono",
  "clap",
  "crossterm",
  "csv",
+ "diag-core",
  "futures",
  "humantime",
  "ratatui",
@@ -540,14 +541,12 @@ dependencies = [
  "reqwest",
  "roxmltree",
  "rustls",
- "rustls-native-certs",
  "serde",
  "serde_json",
  "sha2",
  "tempfile",
  "tokio",
  "tokio-rustls",
- "x509-parser",
  "zip",
 ]
 
@@ -597,6 +596,22 @@ dependencies = [
  "quote",
  "rustc_version",
  "syn 2.0.119",
+]
+
+[[package]]
+name = "diag-core"
+version = "0.1.0"
+source = "git+https://github.com/DBANFD/diag-core?rev=f12c21f70bd5c0f8f8e086b540e78c9004710c5f#f12c21f70bd5c0f8f8e086b540e78c9004710c5f"
+dependencies = [
+ "anyhow",
+ "base64 0.22.1",
+ "chrono",
+ "rustls",
+ "rustls-native-certs",
+ "serde",
+ "tokio",
+ "tokio-rustls",
+ "x509-parser",
 ]
 
 [[package]]

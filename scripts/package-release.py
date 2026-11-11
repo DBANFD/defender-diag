@@ -6,10 +6,11 @@ import re
 import tarfile
 import zipfile
 
-DOCS = ['README.md', 'USAGE.md', 'DEFENDER_STATUS.md', 'ANALYZER.md',
-        'MICROSOFT_SCOPE.md', 'ENDPOINT_BEHAVIOR.md', 'REPORT_SCHEMA.md',
-        'CHANGELOG.md', 'MDE_CONNECTIVITY.md', 'LICENSE']
-TARGETS = ['x86_64-pc-windows-msvc', 'x86_64-unknown-linux-gnu',
+DOCS = ['README.md', 'docs/USAGE.md', 'docs/DEFENDER_STATUS.md', 'docs/ANALYZER.md',
+        'docs/MICROSOFT_SCOPE.md', 'docs/ENDPOINT_BEHAVIOR.md', 'docs/REPORT_SCHEMA.md',
+        'CHANGELOG.md', 'docs/MDE_CONNECTIVITY.md', 'LICENSE']
+TARGETS = ['x86_64-pc-windows-msvc', 'aarch64-pc-windows-msvc',
+           'x86_64-unknown-linux-gnu', 'x86_64-unknown-linux-musl',
            'x86_64-apple-darwin', 'aarch64-apple-darwin']
 
 def main():

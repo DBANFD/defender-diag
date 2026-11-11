@@ -2,7 +2,7 @@
 
 A terminal dashboard and command-line tool for investigating Microsoft Defender connectivity. Follow DNS, TCP, TLS, and HTTPS results separately, compare service endpoints, and export evidence for further analysis.
 
-Written in Rust. Source version: **0.8.0**. See GitHub Releases for platform downloads.
+Written in Rust. Source version: **0.9.0**. See GitHub Releases for platform downloads.
 
 ## Features
 
@@ -17,7 +17,7 @@ Written in Rust. Source version: **0.8.0**. See GitHub Releases for platform dow
 
 Get the portable Windows, Linux or macOS application from [GitHub Releases](https://github.com/DBANFD/defender-diag/releases/latest). Choose the asset for your CPU and extract it. Windows uses the `.exe`; Linux/macOS use `./defender-diag` in Terminal. Rust is only needed when building from source.
 
-Windows x64, Linux x64 (glibc 2.35+), macOS Intel and Apple Silicon archives include documentation and the license. Verify downloads against the release SHA256SUMS.txt. Builds are unsigned and macOS builds are not notarized. See the release notes for tested platforms and limitations. Microsoft Analyzer packages are acquired separately and are never included.
+Windows x64 and ARM64, Linux x64 (glibc 2.35+, or the static musl build for older distributions), macOS Intel and Apple Silicon archives include documentation and the license. Verify downloads against the release SHA256SUMS.txt, or check the build provenance with `gh attestation verify <archive> --repo DBANFD/defender-diag`. Builds are unsigned and macOS builds are not notarized. See the release notes for tested platforms and limitations. Microsoft Analyzer packages are acquired separately and are never included.
 
 ## Build and run
 
@@ -56,7 +56,7 @@ Open **MDE connectivity check** in the dashboard. EU is the default tenant data 
 .\defender-diag.exe mde-check --region eu --count 3 --output mde-check.json
 ```
 
-A passing sample is not complete service readiness or evidence of the configured onboarding mode. Feed errors can differ from `mdatp connectivity test` because of region, path, proxy, certificate validation and IPv4/IPv6 differences. See [MDE connectivity checks](MDE_CONNECTIVITY.md).
+A passing sample is not complete service readiness or evidence of the configured onboarding mode. Feed errors can differ from `mdatp connectivity test` because of region, path, proxy, certificate validation and IPv4/IPv6 differences. See [MDE connectivity checks](docs/MDE_CONNECTIVITY.md).
 
 ## Defender status and Analyzer packages
 
@@ -66,25 +66,25 @@ A passing sample is not complete service readiness or evidence of the configured
 .\defender-diag.exe defender preferences
 ```
 
-Open **Defender status** in the dashboard to choose Get-MpComputerStatus or Get-MpPreference. Queries are local and read-only, with scrolling, search and cancellation. No cloud login or automatic evidence files. See [Defender status](DEFENDER_STATUS.md) for prerequisites and limitations.
+Open **Defender status** in the dashboard to choose Get-MpComputerStatus or Get-MpPreference. Queries are local and read-only, with scrolling, search and cancellation. No cloud login or automatic evidence files. See [Defender status](docs/DEFENDER_STATUS.md) for prerequisites and limitations.
 
 ## Reading the results
 
 Transport success means that the selected connection stages completed. An HTTP response, including 403 or 404, does not by itself establish Defender sensor health. HTTP 5xx responses remain visible for investigation.
 
-Connections are direct unless `--proxy` is set. Proxied hosts are reached by name through HTTP CONNECT, so per-IP results are not available for them. PAC/WPAD scripts and authenticated proxies are not supported, and the tool still does not reproduce the sensor's own proxy context. TLS certificate verification stays enabled. Reports can contain hostnames, IP addresses, and certificate information, so inspect them before sharing.
+Connections are direct unless `--proxy` is set. Proxied hosts are reached by name through HTTP CONNECT, so per-IP results are not available for them. PAC/WPAD scripts are not supported. Basic proxy authentication is supported with credentials from the environment: set `DIAG_PROXY_USER` and `DIAG_PROXY_PASSWORD`, or use `http://user:password@host:port` in HTTPS_PROXY/ALL_PROXY with `--proxy env`. Credentials are refused on the command line and never written to reports or journals. Basic credentials reach the proxy unencrypted. Negotiate, Kerberos and NTLM are not supported. The tool still does not reproduce the sensor's own proxy context. TLS certificate verification stays enabled. Reports can contain hostnames, IP addresses, and certificate information, so inspect them before sharing.
 
 ## Documentation
 
 | Guide | Contents |
 | --- | --- |
-| [Usage](USAGE.md) | Dashboard controls, CLI options, profiles, exit codes, and limitations |
-| [Testing guide](TESTING_GUIDE.md) | Feed categories, repeat presets, regional comparisons, and journals |
-| [Endpoint behavior](ENDPOINT_BEHAVIOR.md) | Probe paths and interpretation of service responses |
-| [Client Analyzer](ANALYZER.md) | Importing reports and running a separately supplied Windows package |
-| [Report schema](REPORT_SCHEMA.md) | JSON, CSV, and Analyzer output fields |
-| [Microsoft scope](MICROSOFT_SCOPE.md) | Provider enforcement, endpoint registry and dependencies |
-| [Defender status](DEFENDER_STATUS.md) | Local running mode and preferences |
+| [Usage](docs/USAGE.md) | Dashboard controls, CLI options, profiles, exit codes, and limitations |
+| [Testing guide](docs/TESTING_GUIDE.md) | Feed categories, repeat presets, regional comparisons, and journals |
+| [Endpoint behavior](docs/ENDPOINT_BEHAVIOR.md) | Probe paths and interpretation of service responses |
+| [Client Analyzer](docs/ANALYZER.md) | Importing reports and running a separately supplied Windows package |
+| [Report schema](docs/REPORT_SCHEMA.md) | JSON, CSV, and Analyzer output fields |
+| [Microsoft scope](docs/MICROSOFT_SCOPE.md) | Provider enforcement, endpoint registry and dependencies |
+| [Defender status](docs/DEFENDER_STATUS.md) | Local running mode and preferences |
 | [Changelog](CHANGELOG.md) | Changes by version |
 
 ## Development
@@ -95,13 +95,13 @@ cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
 ```
 
-Source is organized under `src/`, with local integration fixtures under `tests/`, feed data under `assets/`, and configuration examples under `examples/`. The CI workflow checks Windows, Linux, and macOS.
+Source is organized under `src/`, guides under `docs/`, with local integration fixtures under `tests/`, feed data under `assets/`, and configuration examples under `examples/`. The CI workflow checks Windows, Linux, and macOS.
 
 Windows is the primary development platform. Cross-platform operational qualification and a full elevated Client Analyzer collection pilot remain ongoing.
 
 ## MDE Client Analyzer
 
-Public builds never bundle Microsoft binaries. Download/update or import packages at runtime; Windows collection uses the selected operator-owned package. Microsoft's package retains its own license and prompts. See the [integration guide](ANALYZER.md).
+Public builds never bundle Microsoft binaries. Download/update or import packages at runtime; Windows collection uses the selected operator-owned package. Microsoft's package retains its own license and prompts. See the [integration guide](docs/ANALYZER.md).
 
 ## License
 

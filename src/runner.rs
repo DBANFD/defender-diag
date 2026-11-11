@@ -86,8 +86,11 @@ async fn probe(
                         let plan = crate::endpoints::probe(&host, o.port, o.generic_http);
                         a.http_method = Some(plan.method.into());
                         a.http_path = Some(plan.path.into());
-                        match http::request(&mut s, &host, o.port, o.timeout, plan).await {
-                            Ok(status) => a.http_status = Some(status),
+                        match http::request_full(&mut s, &host, o.port, o.timeout, plan).await {
+                            Ok((status, location)) => {
+                                a.http_status = Some(status);
+                                a.redirect_location = location;
+                            }
                             Err(e) => {
                                 a.success = false;
                                 a.error = Some(e);

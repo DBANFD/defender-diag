@@ -32,6 +32,8 @@ DNS-only mode emits one hostname-level row per lookup. Its total_ms is DNS elaps
 
 Version 0.8.0 keeps schema 2 and appends proxy_connect_ms (JSON and CSV) plus proxy source fields. New failure codes: PROXY_TCP_TIMEOUT, PROXY_TCP_* (connection to the proxy), PROXY_TIMEOUT, PROXY_IO, PROXY_INVALID_RESPONSE, PROXY_AUTH_REQUIRED, PROXY_CONNECT_REJECTED.
 
+Version 0.9.0 keeps schema 2 and adds proxy.authentication ("none" or "basic"; states only whether credentials were supplied), the attempt field redirect_location (string or null; sanitized Location of a 3xx response, never followed; JSON only, CSV columns are unchanged) and the failure code PROXY_AUTH_FAILED. The Host header of HTTPS probes omits the default port 443.
+
 Version 0.3.0/schema 2 adds http_method and http_path (null until an HTTP request is attempted), assessment, and diagnostic_note to JSON attempts. CSV appends http_method,http_path,assessment. success remains the raw selected-stage result; assessments never modify it. Assessment values: not_assessed (manually constructed row), stage_succeeded, response_received, known_http_response, possible_expected_http, review_http, transport_failure, apex_not_service_test, optional_ipv6_probe. Historical expectation context is not current service-health evidence. All 5xx statuses require review; TLS errors always remain failures. Raw HTTP status and failure code are preserved.
 
 ## Analyzer summary schema 1 (separate document)
